@@ -23,8 +23,7 @@ type server struct {
 type Event func()
 
 type Server interface {
-	Init()
-	Register(rfs ...func(r *gin.Engine))
+	Init(rfs ...func(r *gin.Engine))
 	SetBeforeStartEvent(events ...Event)
 	SetAfterStartEvent(events ...Event)
 	Run(addr string) error
@@ -61,7 +60,7 @@ func EnvOption(env vars.Env) Option {
 	}
 }
 
-func (s *server) Init() {
+func (s *server) Init(rfs ...func(r *gin.Engine)) {
 	s.r.Use(gin.Recovery())
 
 	if s.l != nil {
@@ -72,9 +71,7 @@ func (s *server) Init() {
 
 	regMetricFunc := getServerMetricRegisterFunc()
 	regMetricFunc(s.r)
-}
 
-func (s *server) Register(rfs ...func(r *gin.Engine)) {
 	for _, rf := range rfs {
 		rf(s.r)
 	}

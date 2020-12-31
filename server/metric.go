@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"net/http"
 	"strconv"
 	"time"
 )
@@ -52,10 +53,12 @@ func saveHttpServerStat(c *gin.Context) {
 		"method":  method,
 	}).Observe(time.Since(startTime).Seconds())
 
-	requestStatus.With(map[string]string{
-		"handler": url,
-		"method":  method,
-		"code":    strconv.Itoa(c.Writer.Status()),
-	})
-
+	status := c.Writer.Status()
+	if status != http.StatusNotFound {
+		requestStatus.With(map[string]string{
+			"handler": url,
+			"method":  method,
+			"code":    strconv.Itoa(c.Writer.Status()),
+		}).Inc()
+	}
 }
