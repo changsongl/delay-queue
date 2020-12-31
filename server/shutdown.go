@@ -26,6 +26,6 @@ func (s ShutdownChan) Wait() error {
 
 func shutdown(srv *http.Server, sc ShutdownChan) {
 	ctx, cancel := context.WithTimeout(context.Background(), ShutDownTimeout)
-	sc.Notify(srv.Shutdown(ctx))
 	defer cancel()
+	sc.Notify(srv.Shutdown(ctx))
 }
