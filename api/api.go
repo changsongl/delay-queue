@@ -24,7 +24,7 @@ type api struct {
 func NewApi(l log.Logger) API {
 	responseHelper := http.Response{}
 	httpHandler := action.NewHandler(
-		responseHelper, l.WithModule("http"))
+		responseHelper, l.WithModule("http"), http.NewValidator())
 
 	return &api{
 		l:           l,

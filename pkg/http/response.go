@@ -20,6 +20,6 @@ func (r *Response) Error(ctx *gin.Context, err error) {
 	responseOk(ctx, map[string]interface{}{"success": false, "error": err.Error()})
 }
 
-func (r *Response) Ok(ctx *gin.Context, id, value string) {
-	responseOk(ctx, map[string]interface{}{"success": false, "id": id, "value": value})
+func (r *Response) Ok(ctx *gin.Context, id, topic, value string) {
+	responseOk(ctx, map[string]interface{}{"success": true, "id": id, "topic": topic, "value": value})
 }
