@@ -8,25 +8,45 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type router struct {
-	rsp    http.Response
-	logger log.Logger
+type idParam struct {
+	ID string `uri:"id" json:"id" binding:"required,max=200"`
 }
 
-func NewHandler(rsp http.Response, logger log.Logger) handler.Handler {
+type topicParam struct {
+	Topic string `uri:"topic" json:"topic" binding:"required,max=50"`
+}
+
+type idTopicParam struct {
+	idParam
+	topicParam
+}
+
+type addParam struct {
+	idParam
+	Delay uint   `json:"delay"`
+	TTR   uint   `json:"ttr"`
+	Body  string `json:"body"`
+}
+
+type router struct {
+	rsp       http.Response
+	logger    log.Logger
+	validator http.Validator
+}
+
+func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator) handler.Handler {
 	return &router{
-		rsp:    rsp,
-		logger: logger,
+		rsp:       rsp,
+		logger:    logger,
+		validator: validator,
 	}
 }
 
 func (r *router) Register() server.RouterFunc {
-	resourcePath := "/job"
-
 	return func(engine *gin.Engine) {
-		engine.PUT(resourcePath, r.finish)
-		engine.POST(resourcePath, r.add)
-		engine.GET(resourcePath, r.pop)
-		engine.DELETE(resourcePath, r.delete)
+		engine.PUT("/topic/:topic/job/:id", r.finish)
+		engine.POST("/topic/:topic/job", r.add)
+		engine.GET("/topic/:topic/job", r.pop)
+		engine.DELETE("/topic/:topic/job/:id", r.delete)
 	}
 }

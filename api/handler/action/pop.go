@@ -1,7 +1,16 @@
 package action
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+)
 
 func (r *router) pop(ctx *gin.Context) {
-	r.rsp.Ok(ctx, "id", "pop")
+	uriParam := &topicParam{}
+	err := r.validator.Validate(ctx, uriParam, nil, nil)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx, "id", uriParam.Topic, "value")
 }
