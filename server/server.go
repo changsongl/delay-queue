@@ -10,7 +10,7 @@ import (
 	"syscall"
 )
 
-type Option func(s *server)
+type RouterFunc func(engine *gin.Engine)
 
 type server struct {
 	r           *gin.Engine
@@ -23,9 +23,8 @@ type server struct {
 type Event func()
 
 type Server interface {
-	Init(rfs ...func(r *gin.Engine))
-	SetBeforeStartEvent(events ...Event)
-	SetAfterStartEvent(events ...Event)
+	Init()
+	RegisterRouters(regFunc RouterFunc)
 	Run(addr string) error
 }
 
@@ -48,19 +47,7 @@ func New(options ...Option) Server {
 	return s
 }
 
-func LoggerOption(l log.Logger) Option {
-	return func(s *server) {
-		s.l = l
-	}
-}
-
-func EnvOption(env vars.Env) Option {
-	return func(s *server) {
-		s.env = env
-	}
-}
-
-func (s *server) Init(rfs ...func(r *gin.Engine)) {
+func (s *server) Init() {
 	s.r.Use(gin.Recovery())
 
 	if s.l != nil {
@@ -71,10 +58,10 @@ func (s *server) Init(rfs ...func(r *gin.Engine)) {
 
 	regMetricFunc := getServerMetricRegisterFunc()
 	regMetricFunc(s.r)
+}
 
-	for _, rf := range rfs {
-		rf(s.r)
-	}
+func (s *server) RegisterRouters(regFunc RouterFunc) {
+	regFunc(s.r)
 }
 
 func (s *server) Run(addr string) error {
@@ -106,12 +93,4 @@ func (s *server) Run(addr string) error {
 	}
 
 	return nil
-}
-
-func (s *server) SetBeforeStartEvent(events ...Event) {
-	s.beforeStart = append(s.beforeStart, events...)
-}
-
-func (s *server) SetAfterStartEvent(events ...Event) {
-	s.beforeStart = append(s.afterStop, events...)
 }

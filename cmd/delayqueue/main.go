@@ -4,6 +4,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/changsongl/delay-queue/api"
 	"github.com/changsongl/delay-queue/config"
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
@@ -20,6 +21,7 @@ var (
 	ErrorInvalidFileType = errors.New("invalid config file type")
 )
 
+// load config file and type
 func loadConfigFlags() (file string, fileType config.FileType, err error) {
 	t := *configType
 	f := *configFile
@@ -47,6 +49,7 @@ func loadConfigFlags() (file string, fileType config.FileType, err error) {
 	}
 }
 
+// load env
 func loadEnv() (vars.Env, error) {
 	envType := vars.Env(*env)
 	if envType != vars.EnvDebug && envType != vars.EnvRelease {
@@ -89,13 +92,18 @@ func run() int {
 		return 1
 	}
 
+	dqApi := api.NewApi(l.WithModule("api"))
+
 	l.Info("Init server",
 		log.String("env", string(dqEnv)))
 	s := server.New(
 		server.LoggerOption(l),
 		server.EnvOption(dqEnv),
+		server.BeforeStartEventOption(),
+		server.AfterStopEventOption(),
 	)
 	s.Init()
+	s.RegisterRouters(dqApi.RouterFunc())
 
 	l.Info("Run server", log.String("address", ":8080"))
 	err = s.Run(":8080")
