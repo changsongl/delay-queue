@@ -6,7 +6,7 @@ import (
 )
 
 type Logger interface {
-	WithModule(module string)
+	WithModule(module string) Logger
 	Debug(msg string, fields ...Field)
 	Info(msg string, fields ...Field)
 	Error(msg string, fields ...Field)
@@ -36,8 +36,10 @@ func New(env vars.Env) (Logger, error) {
 	return log{z: z}, nil
 }
 
-func (l log) WithModule(module string) {
-	l.module = module
+func (l log) WithModule(module string) Logger {
+	lClone := l
+	lClone.module = module
+	return lClone
 }
 
 func (l log) Debug(msg string, fields ...Field) {

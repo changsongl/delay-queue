@@ -1,9 +1,20 @@
 package config
 
 import (
+	"errors"
+	"github.com/changsongl/delay-queue/config/decode"
+	"github.com/changsongl/delay-queue/config/decode/json"
+	"github.com/changsongl/delay-queue/config/decode/yaml"
 	"io/ioutil"
 	"os"
 	"time"
+)
+
+type FileType string
+
+const (
+	FileTypeYaml FileType = "yaml"
+	FileTypeJson FileType = "json"
 )
 
 // configuration
@@ -90,7 +101,7 @@ func New() *Conf {
 	return &Conf{}
 }
 
-func (c *Conf) Load(file string) error {
+func (c *Conf) Load(file string, fileType FileType) error {
 	f, err := os.Open(file)
 	if err != nil {
 		return err
@@ -101,8 +112,12 @@ func (c *Conf) Load(file string) error {
 		return err
 	}
 
-	decoder := NewDecoder()
-	err = c.load(bts, decoder.GetYamlFunc())
+	decoder, err := c.getDecoderByFileType(fileType)
+	if err != nil {
+		return err
+	}
+
+	err = c.load(bts, decoder.DecodeFunc())
 	if err != nil {
 		return err
 	}
@@ -116,4 +131,14 @@ func (c *Conf) load(bts []byte, decodeFunc func([]byte, interface{}) error) erro
 		return nil
 	}
 	return nil
+}
+
+func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
+	if fileType == FileTypeJson {
+		return json.NewDecoder(), nil
+	} else if fileType == FileTypeYaml {
+		return yaml.NewDecoder(), nil
+	}
+
+	return nil, errors.New("invalid file type")
 }
