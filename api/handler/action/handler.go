@@ -1,16 +1,23 @@
-package http
+package action
 
 import (
 	"github.com/changsongl/delay-queue/api/handler"
+	"github.com/changsongl/delay-queue/pkg/http"
+	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
 	"github.com/gin-gonic/gin"
 )
 
 type router struct {
+	rsp    http.Response
+	logger log.Logger
 }
 
-func NewHandler() handler.Handler {
-	return &router{}
+func NewHandler(rsp http.Response, logger log.Logger) handler.Handler {
+	return &router{
+		rsp:    rsp,
+		logger: logger,
+	}
 }
 
 func (r *router) Register() server.RouterFunc {
