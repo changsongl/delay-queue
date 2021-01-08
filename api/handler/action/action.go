@@ -3,19 +3,19 @@ package action
 import (
 	"github.com/changsongl/delay-queue/api/handler"
 	"github.com/changsongl/delay-queue/dispatch"
+	job2 "github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/http"
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
-	"github.com/changsongl/delay-queue/type/job"
 	"github.com/gin-gonic/gin"
 )
 
 type idParam struct {
-	ID job.Id `uri:"id" json:"id" binding:"required,max=200"`
+	ID job2.Id `uri:"id" json:"id" binding:"required,max=200"`
 }
 
 type topicParam struct {
-	Topic job.Topic `uri:"topic" json:"topic" binding:"required,max=50"`
+	Topic job2.Topic `uri:"topic" json:"topic" binding:"required,max=50"`
 }
 
 type idTopicParam struct {
@@ -25,9 +25,9 @@ type idTopicParam struct {
 
 type addParam struct {
 	idParam
-	Delay uint     `json:"delay"`
-	TTR   uint     `json:"ttr"`
-	Body  job.Body `json:"body"`
+	Delay uint      `json:"delay"`
+	TTR   uint      `json:"ttr"`
+	Body  job2.Body `json:"body"`
 }
 
 type router struct {

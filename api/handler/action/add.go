@@ -1,7 +1,7 @@
 package action
 
 import (
-	"github.com/changsongl/delay-queue/type/job"
+	job2 "github.com/changsongl/delay-queue/job"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,6 +24,6 @@ func (r *router) add(ctx *gin.Context) {
 	r.rsp.Ok(ctx)
 }
 
-func getDelayAndTTR(d, ttr uint) (job.Delay, job.TTR) {
-	return job.Delay(d), job.TTR(ttr)
+func getDelayAndTTR(d, ttr uint) (job2.Delay, job2.TTR) {
+	return job2.Delay(d), job2.TTR(ttr)
 }
