@@ -103,7 +103,10 @@ func run() int {
 		func() (bucket.Bucket, pool.Pool, queue.Queue) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
-			return bucket.New(s), pool.New(s), queue.New(s)
+			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
+			p := pool.New(s, l.WithModule("pool"))
+			q := queue.New(s)
+			return b, p, q
 		},
 	)
 

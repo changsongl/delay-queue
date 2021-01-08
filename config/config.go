@@ -44,7 +44,7 @@ type Conf struct {
 type DelayQueue struct {
 	BindAddress string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
 	BucketName  string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
-	BucketSize  int    `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
+	BucketSize  uint64 `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
 	QueueName   string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
 }
 

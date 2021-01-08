@@ -3,6 +3,8 @@ package job
 import (
 	"errors"
 	"fmt"
+	"github.com/changsongl/delay-queue/pkg/lock"
+	"github.com/changsongl/delay-queue/store"
 	"time"
 )
 
@@ -16,9 +18,11 @@ type Job struct {
 	body  Body
 	ts    time.Time
 	fp    Fingerprint
+	mutex lock.Locker
 }
 
-func New(topic Topic, id Id, delay Delay, ttr TTR, body Body) (*Job, error) {
+// New return a job with everything init
+func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, store store.Store) (*Job, error) {
 	if topic == "" || id == "" {
 		return nil, errors.New("[job.New] topic or id is empty")
 	}
@@ -32,23 +36,30 @@ func New(topic Topic, id Id, delay Delay, ttr TTR, body Body) (*Job, error) {
 		ts:    time.Now(),
 	}
 
+	j.mutex = store.GetLock(j.GetName())
 	j.generateFingerprint()
 
 	return j, nil
 }
 
-func (j *Job) getName() string {
+// GetName return job unique name getter
+func (j *Job) GetName() string {
 	return fmt.Sprintf("%s_%s", j.topic, j.id)
 }
 
-// TODO: Lock
-func (j *Job) Lock() error {
-	return nil
+// GetName return job unique name getter
+func (j *Job) GetDelayTimeFromNow() time.Time {
+	return time.Now().Add(time.Duration(j.delay))
 }
 
-// TODO: Unlock
-func (j *Job) Unlock() error {
-	return nil
+// Lock lock the job
+func (j *Job) Lock() error {
+	return j.mutex.Lock()
+}
+
+// Unlock unlock the job
+func (j *Job) Unlock() (bool, error) {
+	return j.mutex.Unlock()
 }
 
 // TODO: generateFingerprint
