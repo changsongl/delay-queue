@@ -3,11 +3,12 @@ package redis
 import (
 	"context"
 	"fmt"
+	"github.com/changsongl/delay-queue/config"
 	"testing"
 )
 
 func TestGetAndSet(t *testing.T) {
-	redis := New()
+	redis := New(config.New().Redis)
 	err := redis.MSet(context.Background(), map[string]interface{}{"haha": 1111, "hehe": 2222})
 	fmt.Println(err)
 

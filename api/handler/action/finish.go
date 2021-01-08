@@ -12,5 +12,11 @@ func (r *router) finish(ctx *gin.Context) {
 		return
 	}
 
-	r.rsp.Ok(ctx, uriParam.ID, uriParam.Topic, "value")
+	err = r.dispatch.Finish(uriParam.Topic, uriParam.ID)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
 }

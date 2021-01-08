@@ -2,18 +2,20 @@ package action
 
 import (
 	"github.com/changsongl/delay-queue/api/handler"
+	"github.com/changsongl/delay-queue/dispatch"
 	"github.com/changsongl/delay-queue/pkg/http"
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
+	"github.com/changsongl/delay-queue/type/job"
 	"github.com/gin-gonic/gin"
 )
 
 type idParam struct {
-	ID string `uri:"id" json:"id" binding:"required,max=200"`
+	ID job.Id `uri:"id" json:"id" binding:"required,max=200"`
 }
 
 type topicParam struct {
-	Topic string `uri:"topic" json:"topic" binding:"required,max=50"`
+	Topic job.Topic `uri:"topic" json:"topic" binding:"required,max=50"`
 }
 
 type idTopicParam struct {
@@ -23,22 +25,24 @@ type idTopicParam struct {
 
 type addParam struct {
 	idParam
-	Delay uint   `json:"delay"`
-	TTR   uint   `json:"ttr"`
-	Body  string `json:"body"`
+	Delay uint     `json:"delay"`
+	TTR   uint     `json:"ttr"`
+	Body  job.Body `json:"body"`
 }
 
 type router struct {
 	rsp       http.Response
 	logger    log.Logger
 	validator http.Validator
+	dispatch  dispatch.Dispatch
 }
 
-func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator) handler.Handler {
+func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator, dispatch dispatch.Dispatch) handler.Handler {
 	return &router{
 		rsp:       rsp,
 		logger:    logger,
 		validator: validator,
+		dispatch:  dispatch,
 	}
 }
 

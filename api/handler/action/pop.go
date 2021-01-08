@@ -12,5 +12,11 @@ func (r *router) pop(ctx *gin.Context) {
 		return
 	}
 
-	r.rsp.Ok(ctx, "id", uriParam.Topic, "value")
+	id, body, err := r.dispatch.Pop(uriParam.Topic)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.OkWithIdAndBody(ctx, id, body)
 }

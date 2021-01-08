@@ -12,9 +12,26 @@ import (
 
 type FileType string
 
+// config file type
 const (
 	FileTypeYaml FileType = "yaml"
 	FileTypeJson FileType = "json"
+)
+
+// default configurations
+const (
+	// delay queue configuration
+	DefaultDQBindAddress = ":8000"
+	DefaultDQBucketName  = "dq_bucket"
+	DefaultDQQueueName   = "dq_queue"
+	DefaultDQBucketSize  = 10
+
+	// redis configuration
+	DefaultRedisNetwork      = "tcp"
+	DefaultRedisAddress      = "127.0.0.1:6379"
+	DefaultRedisDialTimeout  = 5 * time.Second
+	DefaultRedisReadTimeout  = 2 * time.Second
+	DefaultRedisWriteTimeout = 2 * time.Second
 )
 
 // configuration
@@ -25,7 +42,10 @@ type Conf struct {
 
 // delay queue configuration
 type DelayQueue struct {
-	BucketSize int `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
+	BindAddress string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
+	BucketName  string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
+	BucketSize  int    `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
+	QueueName   string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
 }
 
 // redis configuration
@@ -35,7 +55,7 @@ type Redis struct {
 	Network string `yaml:"network,omitempty" json:"network,omitempty"`
 
 	// host:port address.
-	Addr string `yaml:"addr,omitempty" json:"addr,omitempty"`
+	Address string `yaml:"address,omitempty" json:"address,omitempty"`
 
 	// Use the specified username to authenticate the current connection
 	// with one of the connections defined in the ACL list when connecting
@@ -50,16 +70,6 @@ type Redis struct {
 
 	// Database to be selected after connecting to the server.
 	DB int `yaml:"db,omitempty" json:"db,omitempty"`
-
-	// Maximum number of retries before giving up.
-	// Default is 3 retries.
-	MaxRetries int `yaml:"max_retries,omitempty" json:"max_retries,omitempty"`
-	// Minimum backoff between each retry.
-	// Default is 8 milliseconds; -1 disables backoff.
-	MinRetryBackoff time.Duration `yaml:"min_retry_backoff,omitempty" json:"min_retry_backoff,omitempty"`
-	// Maximum backoff between each retry.
-	// Default is 512 milliseconds; -1 disables backoff.
-	MaxRetryBackoff time.Duration `yaml:"max_retry_backoff,omitempty" json:"max_retry_backoff,omitempty"`
 
 	// Dial timeout for establishing new connections.
 	// Default is 5 seconds.
@@ -79,28 +89,28 @@ type Redis struct {
 	// Minimum number of idle connections which is useful when establishing
 	// new connection is slow.
 	MinIdleConns int `yaml:"min_idle_conns,omitempty" json:"min_idle_conns,omitempty"`
-	// Connection age at which client retires (closes) the connection.
-	// Default is to not close aged connections.
-	MaxConnAge time.Duration `yaml:"max_conn_age,omitempty" json:"max_conn_age,omitempty"`
-	// Amount of time client waits for connection if all connections
-	// are busy before returning an error.
-	// Default is ReadTimeout + 1 second.
-	PoolTimeout time.Duration `yaml:"pool_timeout,omitempty" json:"pool_timeout,omitempty"`
-	// Amount of time after which client closes idle connections.
-	// Should be less than server's timeout.
-	// Default is 5 minutes. -1 disables idle timeout check.
-	IdleTimeout time.Duration `yaml:"idle_timeout,omitempty" json:"idle_timeout,omitempty"`
-	// Frequency of idle checks made by idle connections reaper.
-	// Default is 1 minute. -1 disables idle connections reaper,
-	// but idle connections are still discarded by the client
-	// if IdleTimeout is set.
-	IdleCheckFrequency time.Duration `yaml:"idle_check_frequency,omitempty" json:"idle_check_frequency,omitempty"`
 }
 
+// New Conf instance
 func New() *Conf {
-	return &Conf{}
+	return &Conf{
+		DelayQueue: DelayQueue{
+			BindAddress: DefaultDQBindAddress,
+			BucketName:  DefaultDQBucketName,
+			BucketSize:  DefaultDQBucketSize,
+			QueueName:   DefaultDQQueueName,
+		},
+		Redis: Redis{
+			Network:      DefaultRedisNetwork,
+			Address:      DefaultRedisAddress,
+			DialTimeout:  DefaultRedisDialTimeout,
+			ReadTimeout:  DefaultRedisReadTimeout,
+			WriteTimeout: DefaultRedisWriteTimeout,
+		},
+	}
 }
 
+// Load configuration
 func (c *Conf) Load(file string, fileType FileType) error {
 	f, err := os.Open(file)
 	if err != nil {
@@ -125,6 +135,7 @@ func (c *Conf) Load(file string, fileType FileType) error {
 	return nil
 }
 
+// real load method
 func (c *Conf) load(bts []byte, decodeFunc func([]byte, interface{}) error) error {
 	err := decodeFunc(bts, c)
 	if err != nil {
@@ -133,6 +144,7 @@ func (c *Conf) load(bts []byte, decodeFunc func([]byte, interface{}) error) erro
 	return nil
 }
 
+// getDecoderByFileType get file type for decoding
 func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
 	if fileType == FileTypeJson {
 		return json.NewDecoder(), nil
