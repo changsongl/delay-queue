@@ -5,9 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"github.com/changsongl/delay-queue/api"
+	"github.com/changsongl/delay-queue/bucket"
 	"github.com/changsongl/delay-queue/config"
+	"github.com/changsongl/delay-queue/dispatch"
 	"github.com/changsongl/delay-queue/pkg/log"
+	client "github.com/changsongl/delay-queue/pkg/redis"
+	"github.com/changsongl/delay-queue/pool"
+	"github.com/changsongl/delay-queue/queue"
 	"github.com/changsongl/delay-queue/server"
+	"github.com/changsongl/delay-queue/store/redis"
 	"github.com/changsongl/delay-queue/vars"
 	"os"
 	"strings"
@@ -92,7 +98,16 @@ func run() int {
 		return 1
 	}
 
-	dqApi := api.NewApi(l.WithModule("api"))
+	disp := dispatch.NewDispatch(
+		l.WithModule("dispatch"),
+		func() (bucket.Bucket, pool.Pool, queue.Queue) {
+			cli := client.New(conf.Redis)
+			s := redis.NewStore(cli)
+			return bucket.New(s), pool.New(s), queue.New(s)
+		},
+	)
+
+	dqApi := api.NewApi(l.WithModule("api"), disp)
 
 	l.Info("Init server",
 		log.String("env", string(dqEnv)))

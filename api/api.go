@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/changsongl/delay-queue/api/handler"
 	"github.com/changsongl/delay-queue/api/handler/action"
+	"github.com/changsongl/delay-queue/dispatch"
 	"github.com/changsongl/delay-queue/pkg/http"
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
@@ -21,10 +22,10 @@ type api struct {
 	sync.Once
 }
 
-func NewApi(l log.Logger) API {
+func NewApi(l log.Logger, dispatch dispatch.Dispatch) API {
 	responseHelper := http.Response{}
 	httpHandler := action.NewHandler(
-		responseHelper, l.WithModule("http"), http.NewValidator())
+		responseHelper, l.WithModule("http"), http.NewValidator(), dispatch)
 
 	return &api{
 		l:           l,

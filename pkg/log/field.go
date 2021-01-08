@@ -9,6 +9,7 @@ type FieldType int
 
 const (
 	FieldTypeInt FieldType = iota + 1
+	FieldTypeUInt
 	FieldTypeString
 	FieldTypeDuration
 	FieldTypeInterface
@@ -40,6 +41,26 @@ func Int64(key string, value int64) Field {
 
 func Int(key string, value int) Field {
 	return Field{Key: key, Integer: int64(value), Type: FieldTypeInt}
+}
+
+func Uint8(key string, value uint8) Field {
+	return Field{Key: key, Integer: int64(value), Type: FieldTypeUInt}
+}
+
+func Uint16(key string, value uint16) Field {
+	return Field{Key: key, Integer: int64(value), Type: FieldTypeUInt}
+}
+
+func Uint32(key string, value uint32) Field {
+	return Field{Key: key, Integer: int64(value), Type: FieldTypeUInt}
+}
+
+func Uint64(key string, value uint64) Field {
+	return Field{Key: key, Integer: int64(value), Type: FieldTypeUInt}
+}
+
+func Uint(key string, value int) Field {
+	return Field{Key: key, Integer: int64(value), Type: FieldTypeUInt}
 }
 
 func String(key string, value string) Field {

@@ -12,5 +12,11 @@ func (r *router) delete(ctx *gin.Context) {
 		return
 	}
 
-	r.rsp.Ok(ctx, uriParam.ID, uriParam.Topic, "delete")
+	err = r.dispatch.Delete(uriParam.Topic, uriParam.ID)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
 }

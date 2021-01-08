@@ -2,6 +2,7 @@ package redis
 
 import (
 	"context"
+	"github.com/changsongl/delay-queue/config"
 	gredis "github.com/go-redis/redis/v8"
 	"time"
 )
@@ -87,13 +88,20 @@ type Redis interface {
 	Close() (err error)
 }
 
-func New() Redis {
+func New(conf config.Redis) Redis {
 	return &redis{
 		Client: gredis.NewClient(
 			&gredis.Options{
-				Addr:     "localhost:6379",
-				Password: "", // no password set
-				DB:       0,  // use default DB
+				Network:      conf.Network,
+				Addr:         conf.Address,
+				Username:     conf.Username,
+				Password:     conf.Password,
+				DB:           conf.DB,
+				DialTimeout:  conf.DialTimeout,
+				ReadTimeout:  conf.ReadTimeout,
+				WriteTimeout: conf.WriteTimeout,
+				PoolSize:     conf.PoolSize,
+				MinIdleConns: conf.MinIdleConns,
 			},
 		),
 	}

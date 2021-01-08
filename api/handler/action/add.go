@@ -1,7 +1,7 @@
 package action
 
 import (
-	"fmt"
+	job2 "github.com/changsongl/delay-queue/job"
 	"github.com/gin-gonic/gin"
 )
 
@@ -13,7 +13,17 @@ func (r *router) add(ctx *gin.Context) {
 		r.rsp.Error(ctx, err)
 		return
 	}
-	fmt.Printf("%+v", bodyParam)
 
-	r.rsp.Ok(ctx, "id", uriParam.Topic, "value")
+	d, ttr := getDelayAndTTR(bodyParam.Delay, bodyParam.TTR)
+	err = r.dispatch.Add(uriParam.Topic, bodyParam.ID, d, ttr, bodyParam.Body)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
+}
+
+func getDelayAndTTR(d, ttr uint) (job2.Delay, job2.TTR) {
+	return job2.Delay(d), job2.TTR(ttr)
 }
