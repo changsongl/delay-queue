@@ -3,7 +3,10 @@ package redis
 import (
 	"context"
 	"github.com/changsongl/delay-queue/config"
+	"github.com/changsongl/delay-queue/pkg/lock"
 	gredis "github.com/go-redis/redis/v8"
+	"github.com/go-redsync/redsync/v4"
+	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
 	"time"
 )
 
@@ -85,36 +88,44 @@ type Redis interface {
 	SCard(ctx context.Context, key string) (int64, error)
 	SIsMember(ctx context.Context, key string, member interface{}) (bool, error)
 
+	GetLocker(name string) lock.Locker
+
 	Close() (err error)
 }
 
-func New(conf config.Redis) Redis {
-	return &redis{
-		Client: gredis.NewClient(
-			&gredis.Options{
-				Network:      conf.Network,
-				Addr:         conf.Address,
-				Username:     conf.Username,
-				Password:     conf.Password,
-				DB:           conf.DB,
-				DialTimeout:  conf.DialTimeout,
-				ReadTimeout:  conf.ReadTimeout,
-				WriteTimeout: conf.WriteTimeout,
-				PoolSize:     conf.PoolSize,
-				MinIdleConns: conf.MinIdleConns,
-			},
-		),
-	}
+type redis struct {
+	client *gredis.Client
+	sync   *redsync.Redsync
 }
 
-type redis struct {
-	Client *gredis.Client
+func New(conf config.Redis) Redis {
+	cli := gredis.NewClient(
+		&gredis.Options{
+			Network:      conf.Network,
+			Addr:         conf.Address,
+			Username:     conf.Username,
+			Password:     conf.Password,
+			DB:           conf.DB,
+			DialTimeout:  conf.DialTimeout,
+			ReadTimeout:  conf.ReadTimeout,
+			WriteTimeout: conf.WriteTimeout,
+			PoolSize:     conf.PoolSize,
+			MinIdleConns: conf.MinIdleConns,
+		},
+	)
+
+	rs := redsync.New(goredis.NewPool(cli))
+
+	return &redis{
+		client: cli,
+		sync:   rs,
+	}
 }
 
 // Close close client and all connections
 func (r *redis) Close() (err error) {
-	if r.Client != nil {
-		err = r.Client.Close()
+	if r.client != nil {
+		err = r.client.Close()
 	}
 	return
 }

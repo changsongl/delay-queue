@@ -34,32 +34,12 @@ func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.
 }
 
 func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (err error) {
-	// create job and save to pool with lock
-	j, err := job.New(topic, id, delay, ttr, body)
+	j, err := d.pool.CreateJob(topic, id, delay, ttr, body)
 	if err != nil {
 		return err
 	}
 
-	err = j.Lock()
-	if err != nil {
-		return err
-	}
-
-	defer func() {
-		errDefer := j.Unlock()
-		if err == nil {
-			err = errDefer
-		}
-	}()
-
-	err = d.pool.SaveJob(j)
-	if err != nil {
-		return err
-	}
-
-	// choose bucket to save
-	err = d.bucket.SaveJob(j)
-	return err
+	return d.bucket.CreateJob(j)
 }
 
 func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {

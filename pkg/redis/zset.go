@@ -9,11 +9,11 @@ import (
 type Z gredis.Z
 
 func (r *redis) ZRevRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
-	return r.Client.ZRevRange(ctx, key, start, stop).Result()
+	return r.client.ZRevRange(ctx, key, start, stop).Result()
 }
 
 func (r *redis) ZRevRangeWithScores(ctx context.Context, key string, start, stop int64) ([]Z, error) {
-	zSli, err := r.Client.ZRevRangeWithScores(ctx, key, start, stop).Result()
+	zSli, err := r.client.ZRevRangeWithScores(ctx, key, start, stop).Result()
 	if err != nil {
 		return []Z{}, err
 	}
@@ -27,11 +27,11 @@ func (r *redis) ZRevRangeWithScores(ctx context.Context, key string, start, stop
 }
 
 func (r *redis) ZRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
-	return r.Client.ZRange(ctx, key, start, stop).Result()
+	return r.client.ZRange(ctx, key, start, stop).Result()
 }
 
 func (r *redis) ZRangeWithScores(ctx context.Context, key string, start, stop int64) ([]Z, error) {
-	zSli, err := r.Client.ZRangeWithScores(ctx, key, start, stop).Result()
+	zSli, err := r.client.ZRangeWithScores(ctx, key, start, stop).Result()
 	if err != nil {
 		return []Z{}, err
 	}
@@ -46,7 +46,7 @@ func (r *redis) ZRangeWithScores(ctx context.Context, key string, start, stop in
 
 func (r *redis) ZRangeByScoreWithScores(ctx context.Context, key string, start, stop int64) ([]Z, error) {
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	zSli, err := r.Client.ZRangeByScoreWithScores(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
+	zSli, err := r.client.ZRangeByScoreWithScores(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
 	if err != nil {
 		return []Z{}, err
 	}
@@ -62,7 +62,7 @@ func (r *redis) ZRangeByScoreWithScores(ctx context.Context, key string, start, 
 func (r *redis) ZRangeByScoreWithScoresByOffset(ctx context.Context,
 	key string, start, stop, offset, count int64) ([]Z, error) {
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	zSli, err := r.Client.ZRangeByScoreWithScores(ctx, key,
+	zSli, err := r.client.ZRangeByScoreWithScores(ctx, key,
 		&gredis.ZRangeBy{Min: startStr, Max: stopStr, Offset: offset, Count: count}).Result()
 	if err != nil {
 		return []Z{}, err
@@ -78,31 +78,31 @@ func (r *redis) ZRangeByScoreWithScoresByOffset(ctx context.Context,
 
 func (r *redis) ZRangeByScore(ctx context.Context, key string, start, stop int64) ([]string, error) {
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	return r.Client.ZRangeByScore(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
+	return r.client.ZRangeByScore(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
 }
 
 func (r *redis) ZRangeByScoreByOffset(ctx context.Context,
 	key string, start, stop, offset, count int64) ([]string, error) {
 
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	return r.Client.ZRangeByScore(ctx,
+	return r.client.ZRangeByScore(ctx,
 		key, &gredis.ZRangeBy{Min: startStr, Max: stopStr, Offset: offset, Count: count}).Result()
 }
 
 func (r *redis) ZRevRank(ctx context.Context, key string, member string) (int64, error) {
-	return r.Client.ZRevRank(ctx, key, member).Result()
+	return r.client.ZRevRank(ctx, key, member).Result()
 }
 
 func (r *redis) ZRevRangeByScore(ctx context.Context, key string, start, stop int64) ([]string, error) {
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	return r.Client.ZRevRangeByScore(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
+	return r.client.ZRevRangeByScore(ctx, key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
 }
 
 func (r *redis) ZRevRangeByScoreByOffset(ctx context.Context,
 	key string, start, stop, offset, count int64) ([]string, error) {
 
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	return r.Client.ZRevRangeByScore(ctx,
+	return r.client.ZRevRangeByScore(ctx,
 		key, &gredis.ZRangeBy{Min: startStr, Max: stopStr, Offset: offset, Count: count}).Result()
 }
 
@@ -110,7 +110,7 @@ func (r *redis) ZRevRangeByScoreWithScores(ctx context.Context,
 	key string, start, stop int64) ([]gredis.Z, error) {
 
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	res, err := r.Client.ZRevRangeByScoreWithScores(ctx,
+	res, err := r.client.ZRevRangeByScoreWithScores(ctx,
 		key, &gredis.ZRangeBy{Min: startStr, Max: stopStr}).Result()
 	if err != nil && err != gredis.Nil {
 		return []gredis.Z{}, err
@@ -123,7 +123,7 @@ func (r *redis) ZRevRangeByScoreWithScoresByOffset(ctx context.Context,
 	key string, start, stop, offset, count int64) ([]gredis.Z, error) {
 
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	res, err := r.Client.ZRevRangeByScoreWithScores(ctx,
+	res, err := r.client.ZRevRangeByScoreWithScores(ctx,
 		key, &gredis.ZRangeBy{Min: startStr, Max: stopStr, Offset: offset, Count: count}).Result()
 	if err != nil && err != gredis.Nil {
 		return []gredis.Z{}, err
@@ -133,11 +133,11 @@ func (r *redis) ZRevRangeByScoreWithScoresByOffset(ctx context.Context,
 }
 
 func (r *redis) ZCard(ctx context.Context, key string) (int64, error) {
-	return r.Client.ZCard(ctx, key).Result()
+	return r.client.ZCard(ctx, key).Result()
 }
 
 func (r *redis) ZScore(ctx context.Context, key string, member string) (float64, error) {
-	return r.Client.ZScore(ctx, key, member).Result()
+	return r.client.ZScore(ctx, key, member).Result()
 }
 
 func (r *redis) ZAdd(ctx context.Context, key string, members ...Z) (int64, error) {
@@ -151,18 +151,18 @@ func (r *redis) ZAdd(ctx context.Context, key string, members ...Z) (int64, erro
 		addSli = append(addSli, &m)
 	}
 
-	return r.Client.ZAdd(ctx, key, addSli...).Result()
+	return r.client.ZAdd(ctx, key, addSli...).Result()
 }
 
 func (r *redis) ZCount(ctx context.Context, key string, start, stop int64) (int64, error) {
 	startStr, stopStr := strconv.FormatInt(start, 10), strconv.FormatInt(stop, 10)
-	return r.Client.ZCount(ctx, key, startStr, stopStr).Result()
+	return r.client.ZCount(ctx, key, startStr, stopStr).Result()
 }
 
 func (r *redis) ZRem(ctx context.Context, key string, members ...interface{}) (int64, error) {
-	return r.Client.ZRem(ctx, key, members...).Result()
+	return r.client.ZRem(ctx, key, members...).Result()
 }
 
 func (r *redis) ZRemRangeByRank(ctx context.Context, key string, start, stop int64) (int64, error) {
-	return r.Client.ZRemRangeByRank(ctx, key, start, stop).Result()
+	return r.client.ZRemRangeByRank(ctx, key, start, stop).Result()
 }
