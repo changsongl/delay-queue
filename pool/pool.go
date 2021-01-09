@@ -25,7 +25,7 @@ func New(s store.Store, l log.Logger) Pool {
 func (p pool) CreateJob(topic job.Topic, id job.Id,
 	delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error) {
 
-	j, err := job.New(topic, id, delay, ttr, body, p.s)
+	j, err := job.New(topic, id, delay, ttr, body, p.s.GetLock)
 	if err != nil {
 		return nil, err
 	}

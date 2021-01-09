@@ -4,39 +4,38 @@ import (
 	"errors"
 	"fmt"
 	"github.com/changsongl/delay-queue/pkg/lock"
-	"github.com/changsongl/delay-queue/store"
 	"time"
 )
 
 type Fingerprint uint
 
 type Job struct {
-	topic Topic
-	id    Id
-	delay Delay
-	ttr   TTR
-	body  Body
-	ts    time.Time
-	fp    Fingerprint
-	mutex lock.Locker
+	Topic Topic       `json:"topic"`
+	ID    Id          `json:"id"`
+	Delay Delay       `json:"delay"`
+	TTR   TTR         `json:"ttr"`
+	Body  Body        `json:"body"`
+	TS    time.Time   `json:"ts"`
+	FP    Fingerprint `json:"fp"`
+	Mutex lock.Locker `json:"-"`
 }
 
 // New return a job with everything init
-func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, store store.Store) (*Job, error) {
+func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, lockerFunc lock.LockerFunc) (*Job, error) {
 	if topic == "" || id == "" {
-		return nil, errors.New("[job.New] topic or id is empty")
+		return nil, errors.New("[job.New] Topic or ID is empty")
 	}
 
 	j := &Job{
-		topic: topic,
-		id:    id,
-		delay: delay,
-		ttr:   ttr,
-		body:  body,
-		ts:    time.Now(),
+		Topic: topic,
+		ID:    id,
+		Delay: delay,
+		TTR:   ttr,
+		Body:  body,
+		TS:    time.Now(),
 	}
 
-	j.mutex = store.GetLock(j.GetName())
+	j.Mutex = lockerFunc(j.GetLockName())
 	j.generateFingerprint()
 
 	return j, nil
@@ -44,25 +43,30 @@ func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, store store.Store)
 
 // GetName return job unique name getter
 func (j *Job) GetName() string {
-	return fmt.Sprintf("%s_%s", j.topic, j.id)
+	return fmt.Sprintf("%s_%s", j.Topic, j.ID)
+}
+
+// GetName return job lock name
+func (j *Job) GetLockName() string {
+	return fmt.Sprintf("%s_lock", j.GetName())
 }
 
 // GetName return job unique name getter
 func (j *Job) GetDelayTimeFromNow() time.Time {
-	return time.Now().Add(time.Duration(j.delay))
+	return time.Now().Add(time.Duration(j.Delay))
 }
 
 // Lock lock the job
 func (j *Job) Lock() error {
-	return j.mutex.Lock()
+	return j.Mutex.Lock()
 }
 
 // Unlock unlock the job
 func (j *Job) Unlock() (bool, error) {
-	return j.mutex.Unlock()
+	return j.Mutex.Unlock()
 }
 
 // TODO: generateFingerprint
 func (j *Job) generateFingerprint() {
-	j.fp = 1
+	j.FP = 1
 }

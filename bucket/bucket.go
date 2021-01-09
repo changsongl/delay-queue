@@ -18,12 +18,13 @@ type bucket struct {
 	s     store.Store // real storage
 	size  uint64      // bucket size for round robin
 	name  string      // bucket name prefix
-	count uint64      // current bucket
+	count *uint64     // current bucket
 }
 
 // New a Bucket interface object
 func New(s store.Store, size uint64, name string) Bucket {
-	return bucket{s: s, size: size, name: name, count: 0}
+	var c uint64 = 0
+	return bucket{s: s, size: size, name: name, count: &c}
 }
 
 // CreateJob create job on bucket, bucket is selected
@@ -36,6 +37,6 @@ func (b bucket) CreateJob(j *job.Job) error {
 
 // GetCurrentBucket get current round robin bucket
 func (b bucket) GetCurrentBucket() string {
-	current := atomic.AddUint64(&b.count, 1)
+	current := atomic.AddUint64(b.count, 1)
 	return fmt.Sprintf("%s_%d", b.name, current%b.size)
 }
