@@ -6,6 +6,7 @@ import (
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/pool"
 	"github.com/changsongl/delay-queue/queue"
+	"github.com/changsongl/delay-queue/timer"
 )
 
 type Dispatch interface {
@@ -13,6 +14,8 @@ type Dispatch interface {
 	Pop(topic job.Topic) (id job.Id, body job.Body, err error)
 	Finish(topic job.Topic, id job.Id) (err error)
 	Delete(topic job.Topic, id job.Id) (err error)
+
+	Run()
 }
 
 type dispatch struct {
@@ -20,16 +23,40 @@ type dispatch struct {
 	bucket bucket.Bucket
 	pool   pool.Pool
 	queue  queue.Queue
+	timer  timer.Timer
 }
 
-func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.Queue)) Dispatch {
-	b, p, q := new()
+func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer)) Dispatch {
+	b, p, q, t := new()
 
 	return &dispatch{
 		logger: logger,
 		bucket: b,
 		pool:   p,
 		queue:  q,
+		timer:  t,
+	}
+}
+
+func (d dispatch) Run() {
+	buckets := d.bucket.GetBuckets()
+
+	for _, b := range buckets {
+		d.timer.AddTask(func(num int) (int, error) {
+			nameVersions, err := d.bucket.GetBucketJobs(b, uint(num))
+			if err != nil {
+				d.logger.Error("task failed", log.String("err", err.Error()))
+				return 0, err
+			}
+
+			for _, nameVersion := range nameVersions {
+				d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
+			}
+
+			return len(nameVersions), nil
+		})
+
+		d.timer.Run()
 	}
 }
 

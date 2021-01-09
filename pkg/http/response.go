@@ -1,7 +1,7 @@
 package http
 
 import (
-	job2 "github.com/changsongl/delay-queue/job"
+	"github.com/changsongl/delay-queue/job"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,7 +21,7 @@ func (r *Response) Ok(ctx *gin.Context) {
 	responseOk(ctx, map[string]interface{}{"success": true, "message": "ok"})
 }
 
-func (r *Response) OkWithIdAndBody(ctx *gin.Context, id job2.Id, value job2.Body) {
+func (r *Response) OkWithIdAndBody(ctx *gin.Context, id job.Id, value job.Body) {
 	responseOk(ctx, map[string]interface{}{"success": true, "id": id, "value": value})
 }
 

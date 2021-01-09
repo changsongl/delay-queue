@@ -69,7 +69,7 @@ func (r *redis) MSet(ctx context.Context, kvs map[string]interface{}) error {
 }
 
 func (r *redis) SetNx(ctx context.Context, key string, value interface{}) (bool, error) {
-	return r.client.SetNX(ctx, key, value, 0).Result()
+	return r.client.SetNX(ctx, key, value, time.Hour).Result()
 }
 
 func (r *redis) SetNxExpire(ctx context.Context, key string, value interface{}, expiration time.Duration) (bool, error) {

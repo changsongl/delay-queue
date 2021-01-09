@@ -14,6 +14,7 @@ import (
 	"github.com/changsongl/delay-queue/queue"
 	"github.com/changsongl/delay-queue/server"
 	"github.com/changsongl/delay-queue/store/redis"
+	"github.com/changsongl/delay-queue/timer"
 	"github.com/changsongl/delay-queue/vars"
 	"os"
 	"strings"
@@ -100,15 +101,18 @@ func run() int {
 
 	disp := dispatch.NewDispatch(
 		l.WithModule("dispatch"),
-		func() (bucket.Bucket, pool.Pool, queue.Queue) {
+		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
 			p := pool.New(s, l.WithModule("pool"))
 			q := queue.New(s)
-			return b, p, q
+			t := timer.New()
+			return b, p, q, t
 		},
 	)
+
+	go disp.Run()
 
 	dqApi := api.NewApi(l.WithModule("api"), disp)
 

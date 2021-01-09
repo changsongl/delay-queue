@@ -24,7 +24,7 @@ const (
 	DefaultDQBindAddress = ":8000"
 	DefaultDQBucketName  = "dq_bucket"
 	DefaultDQQueueName   = "dq_queue"
-	DefaultDQBucketSize  = 10
+	DefaultDQBucketSize  = 2
 
 	// redis configuration
 	DefaultRedisNetwork      = "tcp"
