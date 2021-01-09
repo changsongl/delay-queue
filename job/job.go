@@ -7,16 +7,13 @@ import (
 	"time"
 )
 
-type Fingerprint uint
-
 type Job struct {
 	Topic Topic       `json:"topic"`
 	ID    Id          `json:"id"`
 	Delay Delay       `json:"delay"`
 	TTR   TTR         `json:"ttr"`
 	Body  Body        `json:"body"`
-	TS    time.Time   `json:"ts"`
-	FP    Fingerprint `json:"fp"`
+	TS    Version     `json:"version"`
 	Mutex lock.Locker `json:"-"`
 }
 
@@ -32,11 +29,10 @@ func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, lockerFunc lock.Lo
 		Delay: delay,
 		TTR:   ttr,
 		Body:  body,
-		TS:    time.Now(),
+		TS:    NewVersion(),
 	}
 
-	j.Mutex = lockerFunc(j.GetLockName())
-	j.generateFingerprint()
+	j.Mutex = lockerFunc(j.getLockName())
 
 	return j, nil
 }
@@ -46,8 +42,12 @@ func (j *Job) GetName() string {
 	return fmt.Sprintf("%s_%s", j.Topic, j.ID)
 }
 
+func (j *Job) GetNameWithVersion() NameVersion {
+	return NameVersion(fmt.Sprintf("%s_%s_%v", j.Topic, j.ID, j.TS))
+}
+
 // GetName return job lock name
-func (j *Job) GetLockName() string {
+func (j *Job) getLockName() string {
 	return fmt.Sprintf("%s_lock", j.GetName())
 }
 
@@ -64,9 +64,4 @@ func (j *Job) Lock() error {
 // Unlock unlock the job
 func (j *Job) Unlock() (bool, error) {
 	return j.Mutex.Unlock()
-}
-
-// TODO: generateFingerprint
-func (j *Job) generateFingerprint() {
-	j.FP = 1
 }

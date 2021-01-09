@@ -8,14 +8,14 @@ import (
 )
 
 type storage struct {
-	r redis.Redis
-	e encode.Encoder
+	rds     redis.Redis
+	encoder encode.Encoder
 }
 
 func (s storage) GetLock(name string) lock.Locker {
-	return s.r.GetLocker(name)
+	return s.rds.GetLocker(name)
 }
 
 func NewStore(r redis.Redis) store.Store {
-	return &storage{r: r, e: encode.New()}
+	return &storage{rds: r, encoder: encode.New()}
 }

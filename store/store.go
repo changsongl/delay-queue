@@ -7,9 +7,10 @@ import (
 
 type Store interface {
 	GetLock(name string) lock.Locker
+
 	CreateJob(*job.Job) error
+	LoadJob() (*job.Job, error)
 
 	CreateJobInBucket(bucket string, j *job.Job) error
-
-	LoadJob() (*job.Job, error)
+	GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersion, error)
 }

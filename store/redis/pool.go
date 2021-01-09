@@ -11,12 +11,12 @@ func (s *storage) LoadJob() (*job.Job, error) {
 }
 
 func (s *storage) CreateJob(j *job.Job) error {
-	str, err := s.e.Encode(j)
+	str, err := s.encoder.Encode(j)
 	if err != nil {
 		return err
 	}
 
-	result, err := s.r.SetNx(context.Background(), j.GetName(), str)
+	result, err := s.rds.SetNx(context.Background(), j.GetName(), str)
 	if err != nil {
 		return err
 	} else if !result {
