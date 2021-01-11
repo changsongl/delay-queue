@@ -78,12 +78,14 @@ func (s *server) Run(addr string) error {
 		for {
 			select {
 			case <-term:
+				s.l.Info("Signal stop server")
 				shutdown(srv, sc)
 				return
 			}
 		}
 	}()
 
+	s.l.Info("Run server", log.String("address", addr))
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}
@@ -91,6 +93,7 @@ func (s *server) Run(addr string) error {
 	if err := sc.Wait(); err != nil {
 		return err
 	}
+	s.l.Info("Server is stopped")
 
 	return nil
 }

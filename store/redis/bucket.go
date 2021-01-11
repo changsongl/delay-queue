@@ -32,6 +32,13 @@ func (s *storage) GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersi
 
 	if err != nil {
 		return nil, err
+	} else if len(nameStrings) == 0 {
+		return nvs, nil
+	}
+
+	_, err = s.rds.ZRem(context.Background(), bucket, redis.StringMembersToInterface(nameStrings)...)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, nameString := range nameStrings {

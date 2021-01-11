@@ -16,11 +16,10 @@ type Timer interface {
 }
 
 type timer struct {
-	num       int
-	wg        sync.WaitGroup
-	closeChan chan error
-	tasks     []taskStub
-	once      sync.Once
+	num   int
+	wg    sync.WaitGroup
+	tasks []taskStub
+	once  sync.Once
 }
 
 type taskStub struct {
@@ -71,12 +70,14 @@ func (task taskStub) run(num int) {
 			processNum, err := task.f(num)
 			if err != nil {
 				// do something
-			} else if processNum == num {
+				fmt.Println(err)
+				time.Sleep(1 * time.Second)
+				continue
+			} else if processNum != num {
 				// do something
+				time.Sleep(1 * time.Second)
+				continue
 			}
-
-			fmt.Println("process")
-			time.Sleep(1 * time.Second)
 		}
 	}
 }
