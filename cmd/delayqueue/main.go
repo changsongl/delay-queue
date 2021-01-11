@@ -18,6 +18,7 @@ import (
 	"github.com/changsongl/delay-queue/vars"
 	"os"
 	"strings"
+	"sync"
 )
 
 var (
@@ -99,6 +100,9 @@ func run() int {
 		return 1
 	}
 
+	wg := sync.WaitGroup{}
+	wg.Add(1)
+
 	disp := dispatch.NewDispatch(
 		l.WithModule("dispatch"),
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
@@ -112,7 +116,10 @@ func run() int {
 		},
 	)
 
-	go disp.Run()
+	go func() {
+		disp.Run()
+		wg.Done()
+	}()
 
 	dqApi := api.NewApi(l.WithModule("api"), disp)
 
@@ -126,13 +133,13 @@ func run() int {
 	)
 	s.Init()
 	s.RegisterRouters(dqApi.RouterFunc())
-
-	l.Info("Run server", log.String("address", ":8080"))
 	err = s.Run(":8080")
 	if err != nil {
 		l.Error(err.Error())
 		return 1
 	}
+
+	wg.Wait()
 
 	return 0
 }

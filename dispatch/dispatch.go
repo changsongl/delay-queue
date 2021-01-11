@@ -7,6 +7,9 @@ import (
 	"github.com/changsongl/delay-queue/pool"
 	"github.com/changsongl/delay-queue/queue"
 	"github.com/changsongl/delay-queue/timer"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 type Dispatch interface {
@@ -42,22 +45,41 @@ func (d dispatch) Run() {
 	buckets := d.bucket.GetBuckets()
 
 	for _, b := range buckets {
-		d.timer.AddTask(func(num int) (int, error) {
-			nameVersions, err := d.bucket.GetBucketJobs(b, uint(num))
-			if err != nil {
-				d.logger.Error("task failed", log.String("err", err.Error()))
-				return 0, err
-			}
-
-			for _, nameVersion := range nameVersions {
-				d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
-			}
-
-			return len(nameVersions), nil
-		})
-
-		d.timer.Run()
+		d.addTask(b)
 	}
+
+	go func() {
+		term := make(chan os.Signal, 1)
+		signal.Notify(term, os.Interrupt, syscall.SIGTERM)
+		for {
+			select {
+			case <-term:
+				d.logger.Info("Signal dispatch stop")
+				d.timer.Close()
+				return
+			}
+		}
+	}()
+
+	d.logger.Info("Run dispatch")
+	d.timer.Run()
+	d.logger.Info("Dispatch is stopped")
+}
+
+func (d dispatch) addTask(bid uint64) {
+	d.timer.AddTask(func(num int) (int, error) {
+		nameVersions, err := d.bucket.GetBucketJobs(bid, uint(num))
+		if err != nil {
+			d.logger.Error("task failed", log.String("err", err.Error()))
+			return 0, err
+		}
+
+		for _, nameVersion := range nameVersions {
+			d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
+		}
+
+		return len(nameVersions), nil
+	})
 }
 
 func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (err error) {
