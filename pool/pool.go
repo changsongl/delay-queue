@@ -12,6 +12,7 @@ import (
 type Pool interface {
 	CreateJob(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error)
 	LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error)
+	DeleteJob(topic job.Topic, id job.Id) error
 }
 
 // pool is Pool implementation struct
@@ -77,4 +78,21 @@ func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*jo
 	}
 
 	return j, nil
+}
+
+// DeleteJob a job, it will prevent job to be send to user.
+func (p pool) DeleteJob(topic job.Topic, id job.Id) error {
+	j, err := job.Get(topic, id, p.s.GetLock)
+	if err != nil {
+		return err
+	}
+
+	result, err := p.s.DeleteJob(j)
+	if err != nil {
+		return err
+	} else if !result {
+		return errors.New("job is not exists")
+	}
+
+	return nil
 }

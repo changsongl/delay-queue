@@ -13,7 +13,7 @@ type Store interface {
 
 	CreateJob(j *job.Job) error
 	LoadJob(j *job.Job) error
-	//DeleteJob(j *job.Job) error
+	DeleteJob(j *job.Job) (bool, error)
 
 	CreateJobInBucket(bucket string, j *job.Job, isTTR bool) error
 	GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersion, error)

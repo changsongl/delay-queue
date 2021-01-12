@@ -36,3 +36,8 @@ func (s *storage) CreateJob(j *job.Job) error {
 
 	return nil
 }
+
+// DeleteJob delete job in redis
+func (s *storage) DeleteJob(j *job.Job) (bool, error) {
+	return s.rds.Del(context.Background(), j.GetName())
+}

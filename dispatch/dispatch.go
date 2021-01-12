@@ -150,21 +150,13 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 // Finish job. ack the processed job after user has done their job.
 // delay queue will stop retrying and delete all information.
 func (d dispatch) Finish(topic job.Topic, id job.Id) (err error) {
-	// find job
-
 	// set it is done
-
-	return nil
+	return d.pool.DeleteJob(topic, id)
 }
 
 // Delete job before. only delete job, when the bucket event is trigger,
 // it gonna find the job is deleted, so it won't push to the ready queue.
 func (d dispatch) Delete(topic job.Topic, id job.Id) (err error) {
-	// find job
-
-	// check job current status
-
-	// delete if ok
-
-	return nil
+	// delete job
+	return d.pool.DeleteJob(topic, id)
 }
