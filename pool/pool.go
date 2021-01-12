@@ -67,8 +67,6 @@ func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*jo
 	err = p.s.LoadJob(j)
 	if err != nil {
 		return nil, err
-	} else if j == nil {
-		return nil, errors.New("job load failed")
 	}
 
 	if !j.IsVersionSame(version) {

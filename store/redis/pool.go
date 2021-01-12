@@ -12,6 +12,8 @@ func (s *storage) LoadJob(j *job.Job) error {
 	jobData, err := s.rds.Get(context.Background(), j.GetName())
 	if redis.IsError(err) {
 		return err
+	} else if redis.IsNil(err) {
+		return errors.New("job is not exists")
 	}
 
 	return json.Unmarshal([]byte(jobData), j)
