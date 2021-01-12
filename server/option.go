@@ -9,7 +9,7 @@ type Option func(s *server)
 
 func LoggerOption(l log.Logger) Option {
 	return func(s *server) {
-		s.l = l
+		s.l = l.WithModule("server")
 	}
 }
 

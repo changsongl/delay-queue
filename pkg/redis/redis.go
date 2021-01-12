@@ -11,8 +11,6 @@ import (
 )
 
 type Redis interface {
-	IsError(err error) bool
-	IsNil(err error) bool
 	Del(ctx context.Context, key string) (bool, error)
 	Exists(ctx context.Context, key string) (bool, error)
 	Expire(ctx context.Context, key string, expiration time.Duration) (bool, error)

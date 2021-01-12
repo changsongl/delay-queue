@@ -10,11 +10,11 @@ const (
 	KeepTTL time.Duration = -1
 )
 
-func (r *redis) IsError(err error) bool {
+func IsError(err error) bool {
 	return err != nil && err != gredis.Nil
 }
 
-func (r *redis) IsNil(err error) bool {
+func IsNil(err error) bool {
 	return err == gredis.Nil
 }
 
