@@ -18,7 +18,7 @@ type pool struct {
 }
 
 func New(s store.Store, l log.Logger) Pool {
-	return pool{s: s, l: l}
+	return pool{s: s, l: l.WithModule("pool")}
 }
 
 // CreateJob lock the job and save job into storage

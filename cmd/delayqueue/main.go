@@ -103,13 +103,12 @@ func run() int {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
-	disp := dispatch.NewDispatch(
-		l.WithModule("dispatch"),
+	disp := dispatch.NewDispatch(l,
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
-			p := pool.New(s, l.WithModule("pool"))
+			p := pool.New(s, l)
 			q := queue.New(s)
 			t := timer.New()
 			return b, p, q, t
@@ -121,7 +120,7 @@ func run() int {
 		wg.Done()
 	}()
 
-	dqApi := api.NewApi(l.WithModule("api"), disp)
+	dqApi := api.NewApi(l, disp)
 
 	l.Info("Init server",
 		log.String("env", string(dqEnv)))

@@ -33,7 +33,7 @@ func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.
 	b, p, q, t := new()
 
 	return &dispatch{
-		logger: logger,
+		logger: logger.WithModule("dispatch"),
 		bucket: b,
 		pool:   p,
 		queue:  q,

@@ -23,12 +23,13 @@ type api struct {
 }
 
 func NewApi(l log.Logger, dispatch dispatch.Dispatch) API {
+	logger := l.WithModule("api")
 	responseHelper := http.Response{}
 	httpHandler := action.NewHandler(
-		responseHelper, l.WithModule("http"), http.NewValidator(), dispatch)
+		responseHelper, logger, http.NewValidator(), dispatch)
 
 	return &api{
-		l:           l,
+		l:           logger,
 		httpHandler: httpHandler,
 		rsp:         responseHelper,
 	}

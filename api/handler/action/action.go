@@ -40,7 +40,7 @@ type router struct {
 func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator, dispatch dispatch.Dispatch) handler.Handler {
 	return &router{
 		rsp:       rsp,
-		logger:    logger,
+		logger:    logger.WithModule("handler"),
 		validator: validator,
 		dispatch:  dispatch,
 	}
