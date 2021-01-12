@@ -5,6 +5,7 @@ import (
 	"github.com/changsongl/delay-queue/config/decode"
 )
 
+// decoder for json
 type decoder struct {
 	dcFunc decode.Func
 }

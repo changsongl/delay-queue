@@ -8,6 +8,7 @@ import (
 	"github.com/changsongl/delay-queue/pkg/redis"
 )
 
+// LoadJob information
 func (s *storage) LoadJob(j *job.Job) error {
 	jobData, err := s.rds.Get(context.Background(), j.GetName())
 	if redis.IsError(err) {
@@ -19,6 +20,7 @@ func (s *storage) LoadJob(j *job.Job) error {
 	return json.Unmarshal([]byte(jobData), j)
 }
 
+// CreateJob information, only if the job is not exists.
 func (s *storage) CreateJob(j *job.Job) error {
 	str, err := s.encoder.Encode(j)
 	if err != nil {
@@ -33,4 +35,9 @@ func (s *storage) CreateJob(j *job.Job) error {
 	}
 
 	return nil
+}
+
+// DeleteJob delete job in redis
+func (s *storage) DeleteJob(j *job.Job) (bool, error) {
+	return s.rds.Del(context.Background(), j.GetName())
 }

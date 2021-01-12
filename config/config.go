@@ -135,7 +135,7 @@ func (c *Conf) Load(file string, fileType FileType) error {
 	return nil
 }
 
-// real load method
+// load the real method
 func (c *Conf) load(bts []byte, decodeFunc func([]byte, interface{}) error) error {
 	err := decodeFunc(bts, c)
 	if err != nil {

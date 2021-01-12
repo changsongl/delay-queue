@@ -10,8 +10,19 @@ import (
 	"syscall"
 )
 
+// RouterFunc is a function resgiter handler to gin.Engine
 type RouterFunc func(engine *gin.Engine)
 
+// Server interface for a basic method of http web server,
+// which can be ran in few step
+type Server interface {
+	Init()
+	RegisterRouters(regFunc RouterFunc)
+	Run(addr string) error
+}
+
+// server is Server implementation struct, it has a gin.Engine,
+// to save all handlers, logger, events and env.
 type server struct {
 	r           *gin.Engine
 	l           log.Logger
@@ -20,14 +31,11 @@ type server struct {
 	env         vars.Env
 }
 
+// Event common event function can be ran before server start,
+// or after server stop.
 type Event func()
 
-type Server interface {
-	Init()
-	RegisterRouters(regFunc RouterFunc)
-	Run(addr string) error
-}
-
+// New return a Server based on Options.
 func New(options ...Option) Server {
 	s := &server{
 		env: vars.EnvRelease,
@@ -47,6 +55,8 @@ func New(options ...Option) Server {
 	return s
 }
 
+// Init a server, inject the logger to gin, and register prometheus
+// metrics for all apis.
 func (s *server) Init() {
 	s.r.Use(gin.Recovery())
 
@@ -56,21 +66,23 @@ func (s *server) Init() {
 		s.r.Use(gin.LoggerWithConfig(gin.LoggerConfig{}))
 	}
 
-	regMetricFunc := getServerMetricRegisterFunc()
+	regMetricFunc := setServerMetricHandlerAndMiddleware()
 	regMetricFunc(s.r)
 }
 
+// RegisterRouters register router functions for server
 func (s *server) RegisterRouters(regFunc RouterFunc) {
 	regFunc(s.r)
 }
 
+// Run the server, with address. waiting for shutdown signal.
 func (s *server) Run(addr string) error {
 	srv := &http.Server{
 		Addr:    addr,
 		Handler: s.r,
 	}
 
-	sc := NewShutdownChan()
+	sc := newShutdownChan()
 
 	go func() {
 		term := make(chan os.Signal, 1)
