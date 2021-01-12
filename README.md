@@ -66,12 +66,12 @@ PUT 127.0.0.1:8080/topic/mytopic/job/myid1
 
 ### Designs
 
-#### - Terms
+#### Terms
 1. Job: It is a task to be processed, and it is related to only one topic.
 2. Topic: It is a set of jobs, it is implemented by a time-sorted queue.
  All consumers need to choose at least one topic to consume jobs.
 
-### - Job
+### Job
 Jobs contain many properties like:
 1. Topic: It could be a service name, users can define it depending on their
  business.
@@ -86,7 +86,7 @@ Jobs contain many properties like:
  When you consume the job, you can decode it and run your logic.
 
 
-#### - Component
+#### Component
 
 >There are 4 components in the delay queue.
 >1. Job Pool: It saves all metadata of jobs.
@@ -100,7 +100,7 @@ Jobs contain many properties like:
 
 <img alt="delay-queue" src="/doc/pic/delay-queue.png" width="80%">
 
-#### - States
+#### States
 >There are four states for jobs in the delay queue. The job can be only
 > in one state at the time.
 >1. Ready: It is ready to be consumed.
@@ -111,19 +111,19 @@ Jobs contain many properties like:
 
 <img alt="job-state" src="/doc/pic/job-state.png" width="80%">
 
-#### - What's the plan of this project?
+### What's the plan of this project?
 I will work on this project all the time! I will add more features and 
  fix bugs, and I will make this project ready to use in production. Star
  Or Fork it if you like it. I'm very welcome to you for contribution.
  
-#### - How to contribute?
+### How to contribute?
 1. Level a message in the unsigned issue.
 2. We will discuss how to do it, and I will assign the issue to you.
 3. Fork the project.
 4. Submit the PR.
 5. It will be merged after code review.
  
-#### - Reference
+### - Reference
 
-Youzan Design Concept [Youzan Delay Queue](https://tech.youzan.com/queuing_delay/)
+Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)
 
