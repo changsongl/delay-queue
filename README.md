@@ -7,8 +7,6 @@ future.
 
 The design is inspire from Youzan Delay Queue.
 
-https://tech.youzan.com/queuing_delay/
-
 ### Design Plans
 1. This delay queue could be scaled and HA.
 2. Supporting different clustered storage like redis, mysql, rabbitmq, memory and so on.
@@ -125,6 +123,7 @@ I will work on this project all the time! I will add more features and
 4. Submit the PR.
 5. It will be merged after code review.
  
+#### - Reference
 
-
+Youzan Design Concept [Youzan Delay Queue](https://tech.youzan.com/queuing_delay/)
 
