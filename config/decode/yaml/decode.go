@@ -5,6 +5,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// decoder for yaml
 type decoder struct {
 	dcFunc decode.Func
 }

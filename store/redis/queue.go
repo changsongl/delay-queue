@@ -12,6 +12,7 @@ func (s *storage) PushJobToQueue(queue string, j *job.Job) error {
 	return err
 }
 
+// PopJobFromQueue pop the job from redis queue
 func (s *storage) PopJobFromQueue(queue string) (job.NameVersion, error) {
 	jStr, err := s.rds.RPop(context.Background(), queue)
 	if redis.IsError(err) {

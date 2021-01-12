@@ -7,25 +7,32 @@ import (
 )
 
 const (
-	ShutDownTimeout = 6 * time.Second
+	// shutdown timeout for server, it time comes, and
+	// server is not quit yet. it will force server to stop.
+	shutDownTimeout = 6 * time.Second
 )
 
-type ShutdownChan chan error
+// shutdownChan shutdown channel with error
+type shutdownChan chan error
 
-func NewShutdownChan() ShutdownChan {
+// return a shutdownChan
+func newShutdownChan() shutdownChan {
 	return make(chan error, 1)
 }
 
-func (s ShutdownChan) Notify(e error) {
+// Notify the shutdown channel to stop the server
+func (s shutdownChan) Notify(e error) {
 	s <- e
 }
 
-func (s ShutdownChan) Wait() error {
+// Wait for shutdown finished
+func (s shutdownChan) Wait() error {
 	return <-s
 }
 
-func shutdown(srv *http.Server, sc ShutdownChan) {
-	ctx, cancel := context.WithTimeout(context.Background(), ShutDownTimeout)
+// shutdown use shutDownTimeout context to notify the shutdownChan
+func shutdown(srv *http.Server, sc shutdownChan) {
+	ctx, cancel := context.WithTimeout(context.Background(), shutDownTimeout)
 	defer cancel()
 	sc.Notify(srv.Shutdown(ctx))
 }

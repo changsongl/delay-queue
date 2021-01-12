@@ -8,8 +8,14 @@ import (
 )
 
 // CreateJobInBucket create job which will be ready after delay time
-func (s *storage) CreateJobInBucket(bucketName string, j *job.Job) error {
-	delayTime := float64(j.GetDelayTimeFromNow().Unix())
+func (s *storage) CreateJobInBucket(bucketName string, j *job.Job, isTTR bool) error {
+	var delayTime float64
+	if isTTR {
+		delayTime = float64(j.GetDelayTimeFromNow().Unix())
+	} else {
+		delayTime = float64(j.GetTTRTimeFromNow().Unix())
+	}
+
 	_, err := s.rds.ZAdd(context.Background(), bucketName, redis.Z{
 		Score:  delayTime,
 		Member: j.GetNameWithVersion(),
@@ -18,6 +24,7 @@ func (s *storage) CreateJobInBucket(bucketName string, j *job.Job) error {
 	return err
 }
 
+// GetReadyJobsInBucket get job which is ready to be pushed to queue
 func (s *storage) GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersion, error) {
 	nameStrings, err := s.rds.ZRangeByScoreByOffset(
 		context.Background(),

@@ -108,16 +108,22 @@ func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, 
 		return err
 	}
 
-	return d.bucket.CreateJob(j)
+	return d.bucket.CreateJob(j, false)
 }
 
-// Pop job from bucket and return job info to let user process.
+// Pop job from bucket and return job info to let user process. if the ttr time
+// is not zero, it will requeue after ttr time. if user doesn't call finish before
+// that time, then this job can be pop again. User need to make sure ttr time is
+// reasonable.
 func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 	id, body = "", ""
 
 	// find job from ready queue
 	nameVersion, err := d.queue.Pop(topic)
 	if err != nil {
+		return
+	} else if nameVersion == "" {
+		err = nil
 		return
 	}
 
@@ -129,6 +135,13 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 	j, err := d.pool.LoadReadyJob(topic, id, version)
 	if err != nil {
 		return
+	}
+
+	if j.Delay != 0 {
+		err := d.bucket.CreateJob(j, true)
+		if err != nil {
+			d.logger.Error("bucket ttr requeue failed", log.String("err", err.Error()))
+		}
 	}
 
 	return j.ID, j.Body, nil

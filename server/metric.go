@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// 普罗米修斯指标
+// server prometheus metrics
 var (
 	requestDuration = prometheus.NewHistogramVec(
 		prometheus.HistogramOpts{
@@ -29,12 +29,15 @@ var (
 	)
 )
 
+// init all metrics to prometheus default register
 func init() {
 	prometheus.MustRegister(requestDuration)
 	prometheus.MustRegister(requestStatus)
 }
 
-func getServerMetricRegisterFunc() func(r *gin.Engine) {
+// setServerMetricHandlerAndMiddleware return a function to set
+// metrics api and a middleware to save http request statistics.
+func setServerMetricHandlerAndMiddleware() func(r *gin.Engine) {
 	return func(r *gin.Engine) {
 		r.GET("/metrics", func(c *gin.Context) {
 			promhttp.Handler().ServeHTTP(c.Writer, c.Request)
@@ -43,6 +46,7 @@ func getServerMetricRegisterFunc() func(r *gin.Engine) {
 	}
 }
 
+// saveHttpServerStat save http server request stats to metrics.
 func saveHttpServerStat(c *gin.Context) {
 	startTime := time.Now()
 	url, method := c.Request.URL.Path, c.Request.Method

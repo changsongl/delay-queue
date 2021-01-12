@@ -8,6 +8,7 @@ import (
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/server"
 	"github.com/gin-gonic/gin"
+	"time"
 )
 
 type idParam struct {
@@ -53,4 +54,87 @@ func (r *router) Register() server.RouterFunc {
 		engine.GET("/topic/:topic/job", r.pop)
 		engine.DELETE("/topic/:topic/job/:id", r.delete)
 	}
+}
+
+// add action is to push job to delay queue
+func (r *router) add(ctx *gin.Context) {
+	uriParam := &topicParam{}
+	bodyParam := &addParam{}
+	err := r.validator.Validate(ctx, uriParam, nil, bodyParam)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	d, ttr := getDelayAndTTR(bodyParam.Delay, bodyParam.TTR)
+	err = r.dispatch.Add(uriParam.Topic, bodyParam.ID, d, ttr, bodyParam.Body)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
+}
+
+// getDelayAndTTR convert user seconds to delay object
+func getDelayAndTTR(d, ttr uint) (job.Delay, job.TTR) {
+	second := uint(time.Second)
+	return job.Delay(d * second), job.TTR(ttr * second)
+}
+
+// delete is for deleting job for running
+func (r *router) delete(ctx *gin.Context) {
+	uriParam := &idTopicParam{}
+	err := r.validator.Validate(ctx, uriParam, nil, nil)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	err = r.dispatch.Delete(uriParam.Topic, uriParam.ID)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
+}
+
+// finish is for ack job, which is just processed by the user.
+// it means delay queue won't retry to send this job to user
+// again.
+func (r *router) finish(ctx *gin.Context) {
+	uriParam := &idTopicParam{}
+	err := r.validator.Validate(ctx, uriParam, nil, nil)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	err = r.dispatch.Finish(uriParam.Topic, uriParam.ID)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.Ok(ctx)
+}
+
+// pop a job from delay queue, if there is no job in the ready queue,
+// then id and topic are empty
+func (r *router) pop(ctx *gin.Context) {
+	uriParam := &topicParam{}
+	err := r.validator.Validate(ctx, uriParam, nil, nil)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	id, body, err := r.dispatch.Pop(uriParam.Topic)
+	if err != nil {
+		r.rsp.Error(ctx, err)
+		return
+	}
+
+	r.rsp.OkWithIdAndBody(ctx, id, body)
 }

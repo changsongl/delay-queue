@@ -11,10 +11,13 @@ import (
 	"sync"
 )
 
+// API interface, return a router func to register
+// all handlers for gin engine
 type API interface {
 	RouterFunc() server.RouterFunc
 }
 
+// api struct implemented API
 type api struct {
 	l           log.Logger
 	httpHandler handler.Handler
@@ -22,6 +25,7 @@ type api struct {
 	sync.Once
 }
 
+// NewApi with logger object and dispatch
 func NewApi(l log.Logger, dispatch dispatch.Dispatch) API {
 	logger := l.WithModule("api")
 	responseHelper := http.Response{}
@@ -35,6 +39,8 @@ func NewApi(l log.Logger, dispatch dispatch.Dispatch) API {
 	}
 }
 
+// RouterFunc return a server.RouterFunc which register
+// ping and all delay queue handler actions.
 func (a *api) RouterFunc() server.RouterFunc {
 	rf := func(engine *gin.Engine) {}
 

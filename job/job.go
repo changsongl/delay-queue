@@ -87,6 +87,11 @@ func (j *Job) GetDelayTimeFromNow() time.Time {
 	return time.Now().Add(time.Duration(j.Delay))
 }
 
+// GetName return job unique name getter
+func (j *Job) GetTTRTimeFromNow() time.Time {
+	return time.Now().Add(time.Duration(j.Delay))
+}
+
 // Lock lock the job
 func (j *Job) Lock() error {
 	return j.Mutex.Lock()

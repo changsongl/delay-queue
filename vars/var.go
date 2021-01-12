@@ -1,5 +1,6 @@
 package vars
 
+// Env different environment
 type Env string
 
 const (

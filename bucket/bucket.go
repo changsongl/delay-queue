@@ -12,7 +12,7 @@ import (
 // Bucket interface to save jobs and repeat is searched
 // for jobs which are ready to process
 type Bucket interface {
-	CreateJob(j *job.Job) error
+	CreateJob(j *job.Job, isTTR bool) error
 	GetBuckets() []uint64
 	GetBucketJobs(bid uint64, num uint) ([]job.NameVersion, error)
 }
@@ -43,9 +43,9 @@ func New(s store.Store, size uint64, name string) Bucket {
 
 // CreateJob create job on bucket, bucket is selected
 // by round robin policy
-func (b *bucket) CreateJob(j *job.Job) error {
+func (b *bucket) CreateJob(j *job.Job, isTTR bool) error {
 	currentBucket := b.getCurrentBucket()
-	err := b.s.CreateJobInBucket(currentBucket, j)
+	err := b.s.CreateJobInBucket(currentBucket, j, isTTR)
 	return err
 }
 

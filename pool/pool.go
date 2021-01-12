@@ -8,17 +8,20 @@ import (
 	"github.com/changsongl/delay-queue/store"
 )
 
+// Pool is an interface for manage information of jobs.
 type Pool interface {
 	CreateJob(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error)
 	LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error)
 }
 
+// pool is Pool implementation struct
 type pool struct {
 	s store.Store
 	l log.Logger
 	e encode.Encoder
 }
 
+// New a pool with logger and storage
 func New(s store.Store, l log.Logger) Pool {
 	return pool{s: s, l: l.WithModule("pool")}
 }
