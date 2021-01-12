@@ -1,6 +1,7 @@
 package pool
 
 import (
+	"errors"
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/encode"
 	"github.com/changsongl/delay-queue/pkg/log"
@@ -9,6 +10,7 @@ import (
 
 type Pool interface {
 	CreateJob(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error)
+	LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error)
 }
 
 type pool struct {
@@ -51,4 +53,27 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 	}
 
 	return j, err
+}
+
+// LoadReadyJob load ready job which is just gotten from bucket. this method will check
+// job version is still same. If not same, then it means the just has been replaced, so
+// this job should not process anymore.
+func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error) {
+	j, err := job.Get(topic, id, p.s.GetLock)
+	if err != nil {
+		return nil, err
+	}
+
+	err = p.s.LoadJob(j)
+	if err != nil {
+		return nil, err
+	} else if j == nil {
+		return nil, errors.New("job load failed")
+	}
+
+	if !j.IsVersionSame(version) {
+		return nil, errors.New("version is not same")
+	}
+
+	return j, nil
 }

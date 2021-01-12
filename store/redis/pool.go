@@ -2,12 +2,19 @@ package redis
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"github.com/changsongl/delay-queue/job"
+	"github.com/changsongl/delay-queue/pkg/redis"
 )
 
-func (s *storage) LoadJob() (*job.Job, error) {
-	return nil, nil
+func (s *storage) LoadJob(j *job.Job) error {
+	jobData, err := s.rds.Get(context.Background(), j.GetName())
+	if redis.IsError(err) {
+		return err
+	}
+
+	return json.Unmarshal([]byte(jobData), j)
 }
 
 func (s *storage) CreateJob(j *job.Job) error {

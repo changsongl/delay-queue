@@ -6,17 +6,18 @@ import (
 )
 
 type Queue interface {
-	AddJob(job.Job) bool
+	Push(*job.Job) error
 }
 
 type queue struct {
-	s store.Store
+	s    store.Store
+	name string
 }
 
-func New(s store.Store) Queue {
-	return queue{s: s}
+func New(s store.Store, name string) Queue {
+	return queue{s: s, name: name}
 }
 
-func (r queue) AddJob(j job.Job) bool {
-	panic("implement me")
+func (r queue) Push(j *job.Job) error {
+	return r.s.PushJobToQueue(r.name, j)
 }

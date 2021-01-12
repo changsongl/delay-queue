@@ -22,14 +22,16 @@ import (
 )
 
 var (
+	// configuration and environment
 	configFile = flag.String("config.file", "../../config/config.yaml", "config file")
 	configType = flag.String("config.type", "", "config type")
 	env        = flag.String("env", "release", "delay queue env")
 
+	// errors
 	ErrorInvalidFileType = errors.New("invalid config file type")
 )
 
-// load config file and type
+// loadConfigFlags load config file and type
 func loadConfigFlags() (file string, fileType config.FileType, err error) {
 	t := *configType
 	f := *configFile
@@ -67,12 +69,15 @@ func loadEnv() (vars.Env, error) {
 	return envType, nil
 }
 
+// main function
 func main() {
 	os.Exit(run())
 }
 
+// run function
 func run() int {
 
+	// parse flags
 	flag.Parse()
 	file, fileType, err := loadConfigFlags()
 	if err != nil {
@@ -85,12 +90,14 @@ func run() int {
 		return 1
 	}
 
+	// get logger
 	l, err := createMainLog()
 	if err != nil {
 		fmt.Printf("Init log failed: %v\n", err)
 		return 1
 	}
 
+	// load config file
 	l.Info("Init configuration",
 		log.String("file", file), log.String("file.type", string(fileType)))
 	conf := config.New()
@@ -103,25 +110,25 @@ func run() int {
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
+	// init dispatcher of delay queue, with timer, bucket, queue, job pool components.
 	disp := dispatch.NewDispatch(l,
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
 			p := pool.New(s, l)
-			q := queue.New(s)
+			q := queue.New(s, conf.DelayQueue.QueueName)
 			t := timer.New()
 			return b, p, q, t
 		},
 	)
-
 	go func() {
 		disp.Run()
 		wg.Done()
 	}()
 
+	// run http server to receive requests from user
 	dqApi := api.NewApi(l, disp)
-
 	l.Info("Init server",
 		log.String("env", string(dqEnv)))
 	s := server.New(

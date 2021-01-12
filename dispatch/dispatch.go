@@ -41,6 +41,7 @@ func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.
 	}
 }
 
+// Run the dispatch with timer for getting ready jobs
 func (d dispatch) Run() {
 	buckets := d.bucket.GetBuckets()
 
@@ -66,6 +67,8 @@ func (d dispatch) Run() {
 	d.logger.Info("Dispatch is stopped")
 }
 
+// addTask the task is to get ready jobs from bucket and check data is valid,
+// if yes then push to ready queue, if not then discard.
 func (d dispatch) addTask(bid uint64) {
 	d.timer.AddTask(func(num int) (int, error) {
 		nameVersions, err := d.bucket.GetBucketJobs(bid, uint(num))
@@ -75,13 +78,30 @@ func (d dispatch) addTask(bid uint64) {
 		}
 
 		for _, nameVersion := range nameVersions {
-			d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
+			d.logger.Debug("process", log.String("nameVersion", string(nameVersion)))
+			topic, id, version, err := nameVersion.Parse()
+			if err != nil {
+				d.logger.Error("nameVersion.Parse failed", log.String("err", err.Error()))
+				continue
+			}
+
+			j, err := d.pool.LoadReadyJob(topic, id, version)
+			if err != nil {
+				d.logger.Error("pool.LoadReadyJob failed", log.String("err", err.Error()))
+				continue
+			}
+
+			err = d.queue.Push(j)
+			if err != nil {
+				d.logger.Error("queue.Push failed", log.String("err", err.Error()))
+			}
 		}
 
 		return len(nameVersions), nil
 	})
 }
 
+// Add job to job pool and push to bucket.
 func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (err error) {
 	j, err := d.pool.CreateJob(topic, id, delay, ttr, body)
 	if err != nil {
@@ -91,6 +111,7 @@ func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, 
 	return d.bucket.CreateJob(j)
 }
 
+// Pop job from bucket and return job info to let user process.
 func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 	// find job from ready queue
 
@@ -101,6 +122,8 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 	return "", "", nil
 }
 
+// Finish job. ack the processed job after user has done their job.
+// delay queue will stop retrying and delete all information.
 func (d dispatch) Finish(topic job.Topic, id job.Id) (err error) {
 	// find job
 
@@ -109,6 +132,8 @@ func (d dispatch) Finish(topic job.Topic, id job.Id) (err error) {
 	return nil
 }
 
+// Delete job before. only delete job, when the bucket event is trigger,
+// it gonna find the job is deleted, so it won't push to the ready queue.
 func (d dispatch) Delete(topic job.Topic, id job.Id) (err error) {
 	// find job
 
