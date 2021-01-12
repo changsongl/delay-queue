@@ -50,7 +50,7 @@ func (d dispatch) Run() {
 
 	go func() {
 		term := make(chan os.Signal, 1)
-		signal.Notify(term, os.Interrupt, syscall.SIGTERM)
+		signal.Notify(term, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGQUIT)
 		for {
 			select {
 			case <-term:

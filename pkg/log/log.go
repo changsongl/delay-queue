@@ -1,12 +1,12 @@
 package log
 
 import (
-	"github.com/changsongl/delay-queue/vars"
 	"go.uber.org/zap"
 )
 
 type Logger interface {
 	WithModule(module string) Logger
+
 	Debug(msg string, fields ...Field)
 	Info(msg string, fields ...Field)
 	Error(msg string, fields ...Field)
@@ -14,55 +14,53 @@ type Logger interface {
 	Write(p []byte) (n int, err error)
 }
 
-type log struct {
-	z      *zap.Logger
-	module string
+type logger struct {
+	z *zap.Logger
 }
 
-func New(env vars.Env) (Logger, error) {
-	var z *zap.Logger
-	var err error
+func New(opts ...Option) (Logger, error) {
+	c := NewConfig()
+	opts = append(opts, CallSkipOption(1))
 
-	if env == vars.EnvRelease {
-		z, err = zap.NewProduction(zap.AddCallerSkip(1))
-	} else {
-		z, err = zap.NewDevelopment(zap.AddCallerSkip(1))
+	for _, opt := range opts {
+		opt.apply(c)
 	}
 
+	l, err := c.conf.Build(c.getZapOptions()...)
 	if err != nil {
 		return nil, err
 	}
 
-	return log{z: z}, nil
+	return &logger{z: l}, nil
 }
 
-func (l log) WithModule(module string) Logger {
-	lClone := l
-	lClone.module = module
-	return lClone
+func (l *logger) WithModule(module string) Logger {
+	lClone := *l
+	lClone.z = lClone.z.Named(module)
+	return &lClone
 }
 
-func (l log) Debug(msg string, fields ...Field) {
-	fs := getZapFields(fields...)
-	l.z.Debug(msg, fs...)
+func (l *logger) Debug(s string, fs ...Field) {
+	l.z.Debug(s, getZapFields(fs...)...)
 }
 
-func (l log) Info(msg string, fields ...Field) {
-	fs := getZapFields(fields...)
-	l.z.Info(msg, fs...)
+func (l *logger) Info(s string, fs ...Field) {
+	l.z.Info(s, getZapFields(fs...)...)
 }
 
-func (l log) Error(msg string, fields ...Field) {
-	fs := getZapFields(fields...)
-	l.z.Error(msg, fs...)
+func (l *logger) Warn(s string, fs ...Field) {
+	l.z.Warn(s, getZapFields(fs...)...)
 }
 
-func (l log) Fatal(msg string, fields ...Field) {
-	fs := getZapFields(fields...)
-	l.z.Fatal(msg, fs...)
+func (l *logger) Error(s string, fs ...Field) {
+	l.z.Error(s, getZapFields(fs...)...)
 }
 
-func (l log) Write(b []byte) (n int, err error) {
+func (l *logger) Fatal(s string, fs ...Field) {
+	l.z.Fatal(s, getZapFields(fs...)...)
+}
+
+func (l *logger) Write(b []byte) (n int, err error) {
 	l.Info(string(b))
 	return len(b), nil
 }

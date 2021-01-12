@@ -85,7 +85,7 @@ func run() int {
 		return 1
 	}
 
-	l, err := log.New(dqEnv)
+	l, err := createMainLog()
 	if err != nil {
 		fmt.Printf("Init log failed: %v\n", err)
 		return 1
@@ -142,4 +142,14 @@ func run() int {
 	wg.Wait()
 
 	return 0
+}
+
+// createMainLog create logger with name "main"
+func createMainLog() (log.Logger, error) {
+	l, err := log.New()
+	if err != nil {
+		return nil, err
+	}
+
+	return l.WithModule("main"), nil
 }
