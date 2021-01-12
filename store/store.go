@@ -16,4 +16,5 @@ type Store interface {
 	GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersion, error)
 
 	PushJobToQueue(queue string, j *job.Job) error
+	PopJobFromQueue(queue string) (job.NameVersion, error)
 }
