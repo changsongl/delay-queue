@@ -1,5 +1,5 @@
 # delay-queue
-**This is project is still working in progress. Don't use it in production.**
+**This is project is still working in progress. Don't use it in production. I will release BETA when it is ready.**
 
 This project is a delay queue. It is based on Youzan 有赞 delay queue. Currently,
 it is based on Redis for storage. It will support more types of storages in the 
