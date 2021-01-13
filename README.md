@@ -1,11 +1,14 @@
 # delay-queue
+Translations:
+
+- [中文文档](./README_ZH.md)
+
+### 介绍
 **This is project is still working in progress. Don't use it in production. I will release BETA when it is ready.**
 
 This project is a delay queue. It is based on Youzan 有赞 delay queue. Currently,
 it is based on Redis for storage. It will support more types of storages in the 
 future.
-
-The design is inspire from Youzan Delay Queue.
 
 ### Design Plans
 1. This delay queue could be scaled and HA.
@@ -119,8 +122,8 @@ I will work on this project all the time! I will add more features and
 ### How to contribute?
 1. Level a message in the unsigned issue.
 2. We will discuss how to do it, and I will assign the issue to you.
-3. Fork the project.
-4. Submit the PR.
+3. Fork the project, and checkout your branch from "develop" branch.
+4. Submit the PR to "develop" branch.
 5. It will be merged after code review.
  
 ### Reference
