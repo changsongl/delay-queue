@@ -3,7 +3,7 @@ Translations:
 
 - [中文文档](./README_ZH.md)
 
-### 介绍
+### Introduction
 **This is project is still working in progress. Don't use it in production. I will release BETA when it is ready.**
 
 This project is a delay queue. It is based on Youzan 有赞 delay queue. Currently,
