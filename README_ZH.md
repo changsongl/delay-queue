@@ -88,8 +88,7 @@ PUT 127.0.0.1:8080/topic/mytopic/job/myid1
 <img alt="delay-queue" src="/doc/pic/delay-queue.png" width="80%">
 
 #### 状态
->There are four states for jobs in the delay queue. The job can be only
-> in one state at the time.
+>Job的状态一共有4种，同一时间下只能有一种状态。
 >1. ready：可执行状态，等待消费。
 >2. delay：不可执行状态，等待时钟周期。
 >3. reserved：已被消费者读取，但还未得到消费者的响应（delete、finish）。
