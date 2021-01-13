@@ -123,7 +123,7 @@ I will work on this project all the time! I will add more features and
 4. Submit the PR.
 5. It will be merged after code review.
  
-### - Reference
+### Reference
 
 Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)
 
