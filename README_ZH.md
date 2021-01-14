@@ -94,7 +94,7 @@ PUT 127.0.0.1:8080/topic/mytopic/job/myid1
 >3. reserved：已被消费者读取，但还未得到消费者的响应（delete、finish）。
 >4. deleted：已被消费完成或者已被删除。
 
-<img alt="job-state" src="/doc/pic/job-state.png" width="80%">
+<img alt="job-state" src="https://tech.youzan.com/content/images/2016/03/job-state.png" width="80%">
 
 ### 项目计划
 我将持续打磨这个项目，并且加入更多的功能和修复问题。我将会让这个项目可以投入到生产环境使用。
