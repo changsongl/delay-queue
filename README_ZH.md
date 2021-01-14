@@ -85,7 +85,7 @@ PUT 127.0.0.1:8080/topic/mytopic/job/myid1
 >3. Timer: 负责实时扫描各个Bucket，并将delay时间大于等于当前时间的Job放入到对应的Ready Queue。
 >4. Ready Queue: 存放处于Ready状态的Job（这里只存放Job Id），以供消费程序消费。
 
-<img alt="delay-queue" src="/doc/pic/delay-queue.png" width="80%">
+<img alt="delay-queue" src="https://tech.youzan.com/content/images/2016/03/delay-queue.png" width="80%">
 
 #### 状态
 >Job的状态一共有4种，同一时间下只能有一种状态。
