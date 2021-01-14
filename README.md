@@ -101,7 +101,7 @@ Jobs contain many properties like:
 >4. Ready Queue: It is a queue for storing all ready jobs, which can be
  popped now. It is also only store the job id for the consumers.
 
-<img alt="delay-queue" src="/doc/pic/delay-queue.png" width="80%">
+<img alt="delay-queue" src="https://tech.youzan.com/content/images/2016/03/delay-queue.png" width="80%">
 
 #### States
 >There are four states for jobs in the delay queue. The job can be only
@@ -112,7 +112,7 @@ Jobs contain many properties like:
 > hasn't ack the job. (Call delete、finish).
 >4. Deleted: The job has finished or deleted.
 
-<img alt="job-state" src="/doc/pic/job-state.png" width="80%">
+<img alt="job-state" src="https://tech.youzan.com/content/images/2016/03/job-state.png" width="80%">
 
 ### What's the plan of this project?
 I will work on this project all the time! I will add more features and 
