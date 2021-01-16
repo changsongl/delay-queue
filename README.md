@@ -18,7 +18,7 @@ future.
 5. Unit Tested.
 
 ### Usage
-- ##### Sdk [Link](https://github.com/changsongl/delay-queue-client)
+- ##### SDK [Link](https://github.com/changsongl/delay-queue-client)
 
 - ##### Http
 

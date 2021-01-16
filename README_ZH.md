@@ -15,7 +15,9 @@
 5. 单元测试覆盖到100%。
 
 ### 使用用例
-现在delay-queue的客户端还未提供，因此现在的用例为次项目已经支持的http请求。
+- ##### SDK [链接](https://github.com/changsongl/delay-queue-client)
+
+- ##### Http
 
 ````http request
 // Push job
