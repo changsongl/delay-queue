@@ -71,7 +71,7 @@ func (r *router) add(ctx *gin.Context) {
 	}
 
 	d, ttr := getDelayAndTTR(bodyParam.Delay, bodyParam.TTR)
-	err = r.dispatch.Add(uriParam.Topic, bodyParam.ID, d, ttr, bodyParam.Body)
+	err = r.dispatch.Add(uriParam.Topic, bodyParam.ID, d, ttr, bodyParam.Body, bodyParam.Override)
 	if err != nil {
 		r.rsp.Error(ctx, err)
 		return
