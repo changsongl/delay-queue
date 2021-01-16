@@ -13,7 +13,7 @@ import (
 )
 
 type Dispatch interface {
-	Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (err error)
+	Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
 	Pop(topic job.Topic) (id job.Id, body job.Body, err error)
 	Finish(topic job.Topic, id job.Id) (err error)
 	Delete(topic job.Topic, id job.Id) (err error)
@@ -102,8 +102,10 @@ func (d dispatch) addTask(bid uint64) {
 }
 
 // Add job to job pool and push to bucket.
-func (d dispatch) Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (err error) {
-	j, err := d.pool.CreateJob(topic, id, delay, ttr, body)
+func (d dispatch) Add(topic job.Topic, id job.Id,
+	delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error) {
+
+	j, err := d.pool.CreateJob(topic, id, delay, ttr, body, override)
 	if err != nil {
 		return err
 	}

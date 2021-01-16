@@ -110,7 +110,3 @@ PUT 127.0.0.1:8080/topic/mytopic/job/myid1
 ### Reference
 
 Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)
-
-
-### 如果看不到文档的图片
-绑定github图片hosts: 199.232.96.133 raw.githubusercontent.com

@@ -37,6 +37,28 @@ func (s *storage) CreateJob(j *job.Job) error {
 	return nil
 }
 
+// Replace job information, only if the job is exists.
+func (s *storage) ReplaceJob(j *job.Job) error {
+	str, err := s.encoder.Encode(j)
+	if err != nil {
+		return err
+	}
+
+	exists, err := s.rds.Exists(context.Background(), j.GetName())
+	if err != nil {
+		return err
+	} else if !exists {
+		return errors.New("job is not exists")
+	}
+
+	err = s.rds.Set(context.Background(), j.GetName(), str)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // DeleteJob delete job in redis
 func (s *storage) DeleteJob(j *job.Job) (bool, error) {
 	return s.rds.Del(context.Background(), j.GetName())

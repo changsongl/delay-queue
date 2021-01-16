@@ -129,7 +129,3 @@ I will work on this project all the time! I will add more features and
 ### Reference
 
 Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)
-
-
-### Can't See Image In China?
-bind host: 199.232.96.133 raw.githubusercontent.com

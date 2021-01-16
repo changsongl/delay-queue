@@ -12,6 +12,7 @@ type Store interface {
 	GetLock(name string) lock.Locker
 
 	CreateJob(j *job.Job) error
+	ReplaceJob(j *job.Job) error
 	LoadJob(j *job.Job) error
 	DeleteJob(j *job.Job) (bool, error)
 

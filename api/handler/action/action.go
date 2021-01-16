@@ -26,11 +26,13 @@ type idTopicParam struct {
 
 type addParam struct {
 	idParam
-	Delay uint     `json:"delay"`
-	TTR   uint     `json:"ttr"`
-	Body  job.Body `json:"body"`
+	Delay    uint     `json:"delay"`
+	TTR      uint     `json:"ttr"`
+	Body     job.Body `json:"body"`
+	Override bool     `json:"override"`
 }
 
+// router container all api actions
 type router struct {
 	rsp       http.Response
 	logger    log.Logger
@@ -38,6 +40,7 @@ type router struct {
 	dispatch  dispatch.Dispatch
 }
 
+// NewHandler return a router
 func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator, dispatch dispatch.Dispatch) handler.Handler {
 	return &router{
 		rsp:       rsp,
@@ -47,6 +50,7 @@ func NewHandler(rsp http.Response, logger log.Logger, validator http.Validator, 
 	}
 }
 
+// Register return a register function for all routers
 func (r *router) Register() server.RouterFunc {
 	return func(engine *gin.Engine) {
 		engine.PUT("/topic/:topic/job/:id", r.finish)

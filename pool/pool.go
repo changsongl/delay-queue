@@ -10,7 +10,8 @@ import (
 
 // Pool is an interface for manage information of jobs.
 type Pool interface {
-	CreateJob(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error)
+	CreateJob(topic job.Topic, id job.Id,
+		delay job.Delay, ttr job.TTR, body job.Body, override bool) (*job.Job, error)
 	LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error)
 	DeleteJob(topic job.Topic, id job.Id) error
 }
@@ -29,7 +30,7 @@ func New(s store.Store, l log.Logger) Pool {
 
 // CreateJob lock the job and save job into storage
 func (p pool) CreateJob(topic job.Topic, id job.Id,
-	delay job.Delay, ttr job.TTR, body job.Body) (*job.Job, error) {
+	delay job.Delay, ttr job.TTR, body job.Body, override bool) (*job.Job, error) {
 
 	j, err := job.New(topic, id, delay, ttr, body, p.s.GetLock)
 	if err != nil {
@@ -51,7 +52,12 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 		}
 	}()
 
-	err = p.s.CreateJob(j)
+	if override {
+		err = p.s.ReplaceJob(j)
+	} else {
+		err = p.s.CreateJob(j)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -86,6 +92,21 @@ func (p pool) DeleteJob(topic job.Topic, id job.Id) error {
 	if err != nil {
 		return err
 	}
+
+	err = j.Lock()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		if ok, err := j.Unlock(); !ok || err != nil {
+			p.l.Error(
+				"unlock failed",
+				log.String("job", j.GetName()),
+				log.Reflect("err", err),
+			)
+		}
+	}()
 
 	result, err := p.s.DeleteJob(j)
 	if err != nil {
