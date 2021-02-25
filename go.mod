@@ -10,6 +10,7 @@ require (
 	github.com/go-redsync/redsync/v4 v4.0.4
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.9.0
+	github.com/stretchr/testify v1.7.0
 	github.com/ugorji/go v1.2.2 // indirect
 	go.uber.org/zap v1.16.0
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
