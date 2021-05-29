@@ -3,7 +3,7 @@ module github.com/changsongl/delay-queue
 go 1.14
 
 require (
-	github.com/changsongl/delay-queue-client v0.0.1 // indirect
+	github.com/changsongl/delay-queue-client v0.0.2 // indirect
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis/v8 v8.4.4
