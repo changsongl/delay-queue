@@ -39,3 +39,7 @@ func (r *redis) ExpireAt(ctx context.Context, key string, tm time.Time) (bool, e
 func (r *redis) Ttl(ctx context.Context, key string) (time.Duration, error) {
 	return r.client.TTL(ctx, key).Result()
 }
+
+func (r *redis) FlushDB(ctx context.Context) error {
+	return r.client.FlushDB(ctx).Err()
+}

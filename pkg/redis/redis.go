@@ -16,6 +16,7 @@ type Redis interface {
 	Expire(ctx context.Context, key string, expiration time.Duration) (bool, error)
 	ExpireAt(ctx context.Context, key string, tm time.Time) (bool, error)
 	Ttl(ctx context.Context, key string) (time.Duration, error)
+	FlushDB(ctx context.Context) error
 
 	// kv
 	Get(ctx context.Context, key string) (string, error)
