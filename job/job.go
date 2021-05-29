@@ -3,8 +3,9 @@ package job
 import (
 	"errors"
 	"fmt"
-	"github.com/changsongl/delay-queue/pkg/lock"
 	"time"
+
+	"github.com/changsongl/delay-queue/pkg/lock"
 )
 
 type Job struct {
