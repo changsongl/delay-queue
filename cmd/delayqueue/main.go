@@ -26,6 +26,7 @@ var (
 	configFile = flag.String("config.file", "../../config/config.yaml", "config file")
 	configType = flag.String("config.type", "", "config type")
 	env        = flag.String("env", "release", "delay queue env")
+	version    = flag.Bool("version", false, "display build info")
 
 	// errors
 	ErrorInvalidFileType = errors.New("invalid config file type")
@@ -79,6 +80,11 @@ func run() int {
 
 	// parse flags
 	flag.Parse()
+	if *version {
+		fmt.Printf(vars.BuildInfo())
+		return 0
+	}
+
 	file, fileType, err := loadConfigFlags()
 	if err != nil {
 		fmt.Printf("Load conifuration failed: %v\n", err)
