@@ -81,13 +81,16 @@ func (d dispatch) addTask(bid uint64) {
 			d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
 			topic, id, version, err := nameVersion.Parse()
 			if err != nil {
-				d.logger.Error("timer.task nameVersion.Parse failed", log.String("err", err.Error()))
+				d.logger.Error("timer.task nameVersion.Parse failed",
+					log.String("err", err.Error()), log.String("nameVersion", string(nameVersion)))
 				continue
 			}
 
 			j, err := d.pool.LoadReadyJob(topic, id, version)
 			if err != nil {
-				d.logger.Error("timer.task pool.LoadReadyJob failed", log.String("err", err.Error()))
+				d.logger.Error("timer.task pool.LoadReadyJob failed",
+					log.String("err", err.Error()), log.String("topic", string(topic)),
+					log.String("id", string(id)), log.String("version", version.String()))
 				continue
 			}
 
@@ -139,7 +142,7 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 		return
 	}
 
-	if j.Delay != 0 {
+	if j.TTR != 0 {
 		err := d.bucket.CreateJob(j, true)
 		if err != nil {
 			d.logger.Error("bucket ttr requeue failed", log.String("err", err.Error()))

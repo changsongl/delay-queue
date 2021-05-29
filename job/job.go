@@ -83,14 +83,14 @@ func (j *Job) getLockName() string {
 	return fmt.Sprintf("%s_lock", j.GetName())
 }
 
-// GetName return job unique name getter
+// GetDelayTimeFromNow return how much time to wait for delaying
 func (j *Job) GetDelayTimeFromNow() time.Time {
 	return time.Now().Add(time.Duration(j.Delay))
 }
 
-// GetName return job unique name getter
+// GetTTRTimeFromNow return how much time to wait until overtime
 func (j *Job) GetTTRTimeFromNow() time.Time {
-	return time.Now().Add(time.Duration(j.Delay))
+	return time.Now().Add(time.Duration(j.TTR))
 }
 
 // Lock lock the job
