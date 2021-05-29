@@ -4,6 +4,7 @@
 *.dll
 *.so
 *.dylib
+bin
 
 # Test binary, built with `go test -c`
 *.test
@@ -15,6 +16,6 @@
 # vendor/
 go.sum
 
+# IDE and OS
 .idea
-
 .DS_Store

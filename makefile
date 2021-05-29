@@ -8,10 +8,13 @@ MAIN_FILE=cmd/delayqueue/main.go
 VERSION=$(shell git describe --tags --always --long --dirty)
 GIT_ADDR=$(shell git remote -v | head -n 1 | awk '{print $$2}')
 BUILD_TIME=$(shell date +%FT%T%z)
+GO_VERSION=$(shell go version | awk '{print $$3}')
 
 REPO=github.com/changsongl/delay-queue/
 
-LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.BuildTime=${BUILD_TIME} -X ${REPO}vars.BuildVersion=${VERSION} -X ${REPO}vars.BuildGitPath=${GIT_ADDR}"
+LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.GoVersion=${GO_VERSION} -X ${REPO}vars.BuildTime=${BUILD_TIME} -X ${REPO}vars.BuildVersion=${VERSION} -X ${REPO}vars.BuildGitPath=${GIT_ADDR}"
+
+.PHONY: build clean
 
 build:
 	go fmt ./...
@@ -19,5 +22,5 @@ build:
 #	go vet ./...
 	go build -o ${BINARY} ${LDFLAGS} ${MAIN_FILE}
 
-
-#go build -o bin/delayqueue -ldflags "-X delay-queue/vars.BuildProgram=delayqueue" cmd/delayqueue/main.go
+clean:
+	@if [ -f ${BINARY} ]; then rm ${BINARY} && rmdir bin; fi
