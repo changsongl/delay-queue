@@ -2,6 +2,7 @@ package pool
 
 import (
 	"errors"
+
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/encode"
 	"github.com/changsongl/delay-queue/pkg/log"

@@ -2,9 +2,10 @@ package timer
 
 import (
 	"context"
-	"fmt"
 	"sync"
 	"time"
+
+	"github.com/changsongl/delay-queue/pkg/log"
 )
 
 // TaskFunc only task function can be added to
@@ -21,10 +22,12 @@ type Timer interface {
 
 // timer is Timer implementation struct.
 type timer struct {
+	// TODO: move num from timer to bucket?
 	num   int            // number of tasks
 	wg    sync.WaitGroup // wait group for quit
 	tasks []taskStub     // task stub
 	once  sync.Once      // once
+	l     log.Logger     // logger
 }
 
 // taskStub task stub for function itself and context,
@@ -33,15 +36,26 @@ type taskStub struct {
 	f      TaskFunc
 	ctx    context.Context
 	cancel context.CancelFunc
+	l      log.Logger
 }
 
-func New() Timer {
-	return &timer{num: 20, wg: sync.WaitGroup{}}
+func New(l log.Logger) Timer {
+	// TODO: Optional fetch num
+	return &timer{
+		num: 20,
+		wg:  sync.WaitGroup{},
+		l:   l.WithModule("timer"),
+	}
 }
 
 func (t *timer) AddTask(taskFunc TaskFunc) {
 	ctx, cancelFunc := context.WithCancel(context.Background())
-	task := taskStub{f: taskFunc, ctx: ctx, cancel: cancelFunc}
+	task := taskStub{
+		f:      taskFunc,
+		ctx:    ctx,
+		cancel: cancelFunc,
+		l:      t.l,
+	}
 	t.tasks = append(t.tasks, task)
 }
 
@@ -78,11 +92,10 @@ func (task taskStub) run(num int) {
 		case <-task.ctx.Done():
 			return
 		default:
+			// TODO: optional sleep time
 			processNum, err := task.f(num)
 			if err != nil {
-				// do something
-				// TODO: add logger
-				fmt.Println(err)
+				task.l.Error("task run failed", log.String("err", err.Error()))
 				time.Sleep(1 * time.Second)
 				continue
 			} else if processNum != num {

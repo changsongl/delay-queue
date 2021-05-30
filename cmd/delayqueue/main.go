@@ -124,7 +124,7 @@ func run() int {
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
 			p := pool.New(s, l)
 			q := queue.New(s, conf.DelayQueue.QueueName)
-			t := timer.New()
+			t := timer.New(l)
 			return b, p, q, t
 		},
 	)
