@@ -17,6 +17,33 @@ future.
 4. Be OOD to separate logic and different storage implementations.
 5. Unit Tested.
 
+### How to run the delay queue?
+````shell
+# clone project
+git clone https://github.com/changsongl/delay-queue.git
+
+# build the project
+make
+
+# run the project
+bin/delayqueue
+````
+
+````shell
+# flags
+bin/delayqueue -help
+  -config.file string
+        config file (default "../../config/config.yaml")
+  -config.type string
+        config type
+  -env string
+        delay queue env: debug, release (default "release")
+  -version
+        display build info
+````
+
+The default configuration file is `config/config.yaml.example`.
+
 ### Usage
 - ##### SDK [Link](https://github.com/changsongl/delay-queue-client)
 

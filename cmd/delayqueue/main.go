@@ -25,7 +25,7 @@ var (
 	// configuration and environment
 	configFile = flag.String("config.file", "../../config/config.yaml", "config file")
 	configType = flag.String("config.type", "", "config type")
-	env        = flag.String("env", "release", "delay queue env")
+	env        = flag.String("env", "release", "delay queue env: debug, release")
 	version    = flag.Bool("version", false, "display build info")
 
 	// errors
@@ -145,7 +145,7 @@ func run() int {
 	)
 	s.Init()
 	s.RegisterRouters(dqApi.RouterFunc())
-	err = s.Run(":8080")
+	err = s.Run(conf.DelayQueue.BindAddress)
 	if err != nil {
 		l.Error(err.Error())
 		return 1

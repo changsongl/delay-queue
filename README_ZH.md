@@ -14,6 +14,32 @@
 4. 设计对象编程，可以轻松替换组件和实现多态。
 5. 单元测试覆盖到100%。
 
+
+### 如何运行 delay queue?
+````shell
+# clone project
+git clone https://github.com/changsongl/delay-queue.git
+
+# build the project
+make
+
+# run the project
+bin/delayqueue
+````
+
+````shell
+# flags
+bin/delayqueue -help
+  -config.file string
+        config file (default "../../config/config.yaml")
+  -config.type string
+        config type
+  -env string
+        delay queue env: debug, release (default "release")
+  -version
+        display build info
+````
+
 ### 使用用例
 - ##### SDK [链接](https://github.com/changsongl/delay-queue-client)
 

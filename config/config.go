@@ -34,13 +34,13 @@ const (
 	DefaultRedisWriteTimeout = 2 * time.Second
 )
 
-// configuration
+// Conf configuration
 type Conf struct {
 	DelayQueue DelayQueue `yaml:"delay_queue,omitempty" json:"delay_queue,omitempty"`
 	Redis      Redis      `yaml:"redis,omitempty" json:"redis,omitempty"`
 }
 
-// delay queue configuration
+// DelayQueue delay queue configuration
 type DelayQueue struct {
 	BindAddress string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
 	BucketName  string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
@@ -48,7 +48,7 @@ type DelayQueue struct {
 	QueueName   string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
 }
 
-// redis configuration
+// Redis redis configuration
 type Redis struct {
 	// The network type, either tcp or unix.
 	// Default is tcp.
@@ -63,7 +63,7 @@ type Redis struct {
 	Username string `yaml:"username,omitempty" json:"username,omitempty"`
 
 	// Optional password. Must match the password specified in the
-	// requirepass server configuration option (if connecting to a Redis 5.0 instance, or lower),
+	// require pass server configuration option (if connecting to a Redis 5.0 instance, or lower),
 	// or the User password when connecting to a Redis 6.0 instance, or greater,
 	// that is using the Redis ACL system.
 	Password string `yaml:"password,omitempty" json:"password,omitempty"`

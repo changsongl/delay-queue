@@ -9,7 +9,7 @@ import (
 
 const (
 	RedisAddr      = "127.0.0.1:6379"
-	DelayQueueAddr = "http://127.0.0.1:8080"
+	DelayQueueAddr = "http://127.0.0.1:8000"
 )
 
 var redisInstance redis.Redis
