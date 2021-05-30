@@ -78,7 +78,7 @@ func (d dispatch) addTask(bid uint64) {
 		}
 
 		for _, nameVersion := range nameVersions {
-			d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
+			d.logger.Debug("process", log.String("nameVersion", string(nameVersion)))
 			topic, id, version, err := nameVersion.Parse()
 			if err != nil {
 				d.logger.Error("timer.task nameVersion.Parse failed",

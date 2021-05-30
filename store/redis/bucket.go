@@ -11,9 +11,9 @@ import (
 func (s *storage) CreateJobInBucket(bucketName string, j *job.Job, isTTR bool) error {
 	var delayTime float64
 	if isTTR {
-		delayTime = float64(j.GetDelayTimeFromNow().Unix())
-	} else {
 		delayTime = float64(j.GetTTRTimeFromNow().Unix())
+	} else {
+		delayTime = float64(j.GetDelayTimeFromNow().Unix())
 	}
 
 	_, err := s.rds.ZAdd(context.Background(), bucketName, redis.Z{
