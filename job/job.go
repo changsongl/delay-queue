@@ -75,7 +75,7 @@ func (j *Job) GetName() string {
 }
 
 func (j *Job) GetNameWithVersion() NameVersion {
-	return NameVersion(fmt.Sprintf("%s_%s_%s", j.Topic, j.ID, j.Version))
+	return NewNameVersion(j.Topic, j.ID, j.Version)
 }
 
 // GetName return job lock name

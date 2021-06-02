@@ -49,7 +49,7 @@ func (s *storage) GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersi
 	}
 
 	for _, nameString := range nameStrings {
-		nvs = append(nvs, job.NewNameVersion(nameString))
+		nvs = append(nvs, job.NewNameVersionString(nameString))
 	}
 	return nvs, nil
 }
