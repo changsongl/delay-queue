@@ -70,11 +70,11 @@ func (d dispatch) Run() {
 // addTask the task is to get ready jobs from bucket and check data is valid,
 // if yes then push to ready queue, if not then discard.
 func (d dispatch) addTask(bid uint64) {
-	d.timer.AddTask(func(num int) (int, error) {
-		nameVersions, err := d.bucket.GetBucketJobs(bid, uint(num))
+	d.timer.AddTask(func() (bool, error) {
+		nameVersions, err := d.bucket.GetBucketJobs(bid)
 		if err != nil {
 			d.logger.Error("timer.task bucket.GetBucketJobs failed", log.String("err", err.Error()))
-			return 0, err
+			return false, err
 		}
 
 		for _, nameVersion := range nameVersions {
@@ -100,7 +100,7 @@ func (d dispatch) addTask(bid uint64) {
 			}
 		}
 
-		return len(nameVersions), nil
+		return len(nameVersions) == int(d.bucket.GetMaxFetchNum()), nil
 	})
 }
 

@@ -19,6 +19,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -121,10 +122,15 @@ func run() int {
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
+
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
+			if maxFetchNum := conf.DelayQueue.BucketMaxFetchNum; maxFetchNum != 0 {
+				b.SetMaxFetchNum(maxFetchNum)
+			}
+
 			p := pool.New(s, l)
 			q := queue.New(s, conf.DelayQueue.QueueName)
-			t := timer.New(l)
+			t := timer.New(l, time.Duration(conf.DelayQueue.TimerFetchInterval)*time.Millisecond)
 			return b, p, q, t
 		},
 	)

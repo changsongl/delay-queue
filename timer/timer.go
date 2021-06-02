@@ -10,7 +10,7 @@ import (
 
 // TaskFunc only task function can be added to
 // the timer.
-type TaskFunc func(num int) (int, error)
+type TaskFunc func() (bool, error)
 
 // Timer is for processing task. it checks buckets
 // for popping jobs. it will put ready jobs to queue.
@@ -22,12 +22,11 @@ type Timer interface {
 
 // timer is Timer implementation struct.
 type timer struct {
-	// TODO: move num from timer to bucket?
-	num   int            // number of tasks
-	wg    sync.WaitGroup // wait group for quit
-	tasks []taskStub     // task stub
-	once  sync.Once      // once
-	l     log.Logger     // logger
+	wg           sync.WaitGroup // wait group for quit
+	tasks        []taskStub     // task stub
+	once         sync.Once      // once
+	l            log.Logger     // logger
+	taskInterval time.Duration
 }
 
 // taskStub task stub for function itself and context,
@@ -39,12 +38,11 @@ type taskStub struct {
 	l      log.Logger
 }
 
-func New(l log.Logger) Timer {
-	// TODO: Optional fetch num
+func New(l log.Logger, taskInterval time.Duration) Timer {
 	return &timer{
-		num: 20,
-		wg:  sync.WaitGroup{},
-		l:   l.WithModule("timer"),
+		wg:           sync.WaitGroup{},
+		l:            l.WithModule("timer"),
+		taskInterval: taskInterval,
 	}
 }
 
@@ -66,7 +64,7 @@ func (t *timer) Run() {
 	for _, task := range t.tasks {
 		go func(task taskStub) {
 			defer t.wg.Done()
-			task.run(t.num)
+			task.run(t.taskInterval)
 		}(task)
 	}
 
@@ -86,21 +84,19 @@ func (t *timer) Close() {
 
 // run a task, and wait for context is done.
 // this can be implement with more thinking.
-func (task taskStub) run(num int) {
+func (task taskStub) run(fetchInterval time.Duration) {
 	for {
 		select {
 		case <-task.ctx.Done():
 			return
 		default:
-			// TODO: optional sleep time
-			processNum, err := task.f(num)
+			hasMore, err := task.f()
 			if err != nil {
 				task.l.Error("task run failed", log.String("err", err.Error()))
-				time.Sleep(1 * time.Second)
+				time.Sleep(fetchInterval)
 				continue
-			} else if processNum != num {
-				// do something
-				time.Sleep(1 * time.Second)
+			} else if hasMore {
+				time.Sleep(fetchInterval)
 				continue
 			}
 		}

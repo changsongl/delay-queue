@@ -1,10 +1,12 @@
 # delay queue config
 delay_queue:
-  bind_address: ":8000"     # listen address
-  bucket_name:  "dq_bucket" # bucket redis key name
-  bucket_size:   2          # the number of delay queue bucket.
-                            # increase number could get better concurrency.
-  queue_name:   "dq_queue"  # queue redis key name
+  bind_address: ":      8000"       # listen address
+  bucket_name:          "dq_bucket" # bucket redis key name
+  bucket_size:          2           # the number of delay queue bucket.
+                                    # increase number could get better concurrency.
+  queue_name:           "dq_queue"  # queue redis key name
+  bucket_max_fetch_num: 100         # max fetch number of jobs in the bucket
+  timer_fetch_interval: 1000        # fetching job interval(ms), decrease interval may get better throughout.
 
 # redis config
 redis:
@@ -18,6 +20,6 @@ redis:
                                    # with a timeout instead of blocking.
   username:      ""                # redis username
   password:      ""                # redis password
-  DB:            0                 # redis database
-  PoolSize:      80                # maximum number of socket connections.
+  db:            0                 # redis database
+  pool_size:     80                # maximum number of socket connections.
                                    # default is 10 connections per every CPU as reported by runtime.NumCPU.
