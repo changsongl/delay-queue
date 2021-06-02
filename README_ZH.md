@@ -1,5 +1,7 @@
 # delay-queue
 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%2379C83D&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+
 ### 介绍
 **这个项目还在持续开发当中，功能还不完善到生产使用。当基本功能完成和单元测试覆盖后，
 将发布Beta版本，提供大家使用。**
