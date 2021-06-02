@@ -114,6 +114,9 @@ func run() int {
 		return 1
 	}
 
+	// print config
+	l.Info("Loaded Configuration", log.String("Configuration", conf.String()))
+
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 

@@ -1,6 +1,7 @@
 package config
 
 import (
+	encodeJson "encoding/json"
 	"errors"
 	"github.com/changsongl/delay-queue/config/decode"
 	"github.com/changsongl/delay-queue/config/decode/json"
@@ -23,8 +24,8 @@ const (
 	DefaultDQBindAddress       = ":8000"
 	DefaultDQBucketName        = "dq_bucket"
 	DefaultDQQueueName         = "dq_queue"
-	DefaultDQBucketSize        = 2
-	DefaultDQBucketMaxFetchNum = 20
+	DefaultDQBucketSize        = 8
+	DefaultDQBucketMaxFetchNum = 200
 	DefaultTimerFetchInterval  = 1000
 
 	// redis configuration
@@ -158,4 +159,10 @@ func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
 	}
 
 	return nil, errors.New("invalid file type")
+}
+
+// String config string
+func (c *Conf) String() string {
+	bytes, _ := encodeJson.Marshal(c)
+	return string(bytes)
 }

@@ -1,25 +1,25 @@
 # delay queue config
 delay_queue:
-  bind_address: ":      8000"       # listen address
-  bucket_name:          "dq_bucket" # bucket redis key name
-  bucket_size:          2           # the number of delay queue bucket.
+  bind_address:         ":8000"     # listen address
+  bucket_name:          "dqbucket"  # bucket redis key name
+  bucket_size:          8           # the number of delay queue bucket.
                                     # increase number could get better concurrency.
-  queue_name:           "dq_queue"  # queue redis key name
-  bucket_max_fetch_num: 100         # max fetch number of jobs in the bucket
-  timer_fetch_interval: 1000        # fetching job interval(ms), decrease interval may get better throughout.
+  queue_name:           "dqqueue"   # queue redis key name
+  bucket_max_fetch_num: 250         # max fetch number of jobs in the bucket
+  timer_fetch_interval: 2000        # fetching job interval(ms), decrease interval may get better throughout.
 
 # redis config
 redis:
   network:       "tcp"             # redis network: tcp, unix
   address:       "127.0.0.1:6379"  # host:port address.
-  dial_timeout:  5000000000        # dial timeout for establishing new connections.
-                                   # default is 5 seconds.
-  read_timeout:  2000000000        # timeout for socket reads. If reached, commands will fail
-                                   # with a timeout instead of blocking. Use value -1 for no timeout and 0 for default.
-  write_timeout: 2000000000        # timeout for socket writes. If reached, commands will fail
-                                   # with a timeout instead of blocking.
+  dial_timeout:  5000              # dial timeout for establishing new connections.
+                                   # default is 5 seconds. (ms)
+  read_timeout:  2000              # timeout for socket reads. If reached, commands will failwith a timeout instead
+                                   # of blocking. Use value -1 for no timeout and 0 for default.(ms)
+  write_timeout: 2000              # timeout for socket writes. If reached, commands will fail
+                                   # with a timeout instead of blocking.(ms)
   username:      ""                # redis username
   password:      ""                # redis password
-  db:            0                 # redis database
-  pool_size:     80                # maximum number of socket connections.
+  db:            1                 # redis database
+  pool_size:     60                # maximum number of socket connections.
                                    # default is 10 connections per every CPU as reported by runtime.NumCPU.
