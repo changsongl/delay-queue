@@ -70,14 +70,14 @@ GET 127.0.0.1:8000/topic/mytopic/job
 // response
 {
     "message": "ok",
-    "success": true
+    "success": true,
     "data": {
         "body": "body",
         "delay": 10,
         "id": "myid1",
         "topic": "mytopic",
         "ttr": 4
-    },
+    }
 }
 ````
 
