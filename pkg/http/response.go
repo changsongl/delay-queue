@@ -30,16 +30,21 @@ func (r *Response) Ok(ctx *gin.Context) {
 }
 
 func (r *Response) OkWithJob(ctx *gin.Context, j *job.Job) {
-	responseOk(ctx, map[string]interface{}{
-		"success": true,
-		"message": SuccessMessage,
-		"data": map[string]interface{}{
+	var jobMap map[string]interface{}
+	if j != nil {
+		jobMap = map[string]interface{}{
 			"topic": j.Topic,
 			"id":    j.ID,
 			"body":  j.Body,
 			"ttr":   time.Duration(j.TTR) / time.Second,
 			"delay": time.Duration(j.Delay) / time.Second,
-		},
+		}
+	}
+
+	responseOk(ctx, map[string]interface{}{
+		"success": true,
+		"message": SuccessMessage,
+		"data":    jobMap,
 	})
 }
 
