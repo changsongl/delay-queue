@@ -26,7 +26,7 @@ const (
 	DefaultDQQueueName         = "dq_queue"
 	DefaultDQBucketSize        = 8
 	DefaultDQBucketMaxFetchNum = 200
-	DefaultTimerFetchInterval  = 1000
+	DefaultTimerFetchInterval  = 10000
 
 	// redis configuration
 	DefaultRedisNetwork      = "tcp"

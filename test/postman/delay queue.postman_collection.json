@@ -1,0 +1,118 @@
+{
+	"info": {
+		"_postman_id": "aa5da217-4697-4e35-88f4-e6fdcabc2668",
+		"name": "delay queue",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "finish job",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "http://{{delay-queue-host}}/topic/mytopic/job/myid1",
+					"protocol": "http",
+					"host": [
+						"{{delay-queue-host}}"
+					],
+					"path": [
+						"topic",
+						"mytopic",
+						"job",
+						"myid1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add job",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"id\": \"myid1\",\"delay\":10, \"ttr\":4, \"body\":\"body\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{delay-queue-host}}/topic/mytopic/job",
+					"protocol": "http",
+					"host": [
+						"{{delay-queue-host}}"
+					],
+					"path": [
+						"topic",
+						"mytopic",
+						"job"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get job",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{delay-queue-host}}/topic/mytopic/job",
+					"protocol": "http",
+					"host": [
+						"{{delay-queue-host}}"
+					],
+					"path": [
+						"topic",
+						"mytopic",
+						"job"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete job",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://{{delay-queue-host}}/topic/mytopic/job/myid1",
+					"protocol": "http",
+					"host": [
+						"{{delay-queue-host}}"
+					],
+					"path": [
+						"topic",
+						"mytopic",
+						"job",
+						"myid1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "ping",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://{{delay-queue-host}}/ping",
+					"protocol": "http",
+					"host": [
+						"{{delay-queue-host}}"
+					],
+					"path": [
+						"ping"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

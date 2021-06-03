@@ -53,7 +53,7 @@ The default configuration file is `config/config.yaml.example`.
 
 ````http request
 // Push job
-POST 127.0.0.1:8080/topic/mytopic/job
+POST 127.0.0.1:8000/topic/mytopic/job
 body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 // response 
@@ -65,19 +65,25 @@ body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 ````http request
 // Pop job
-GET 127.0.0.1:8080/topic/mytopic/job
+GET 127.0.0.1:8000/topic/mytopic/job
 
 // response
 {
-    "id": "myid1",
-    "success": true,
-    "value": "body"
+    "message": "ok",
+    "success": true
+    "data": {
+        "body": "body",
+        "delay": 10,
+        "id": "myid1",
+        "topic": "mytopic",
+        "ttr": 4
+    },
 }
 ````
 
 ````http request
 // Delete job
-DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
+DELETE 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {
@@ -88,7 +94,7 @@ DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
 
 ````http request
 // Delete job
-PUT 127.0.0.1:8080/topic/mytopic/job/myid1
+PUT 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {

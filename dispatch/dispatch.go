@@ -14,7 +14,7 @@ import (
 
 type Dispatch interface {
 	Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
-	Pop(topic job.Topic) (id job.Id, body job.Body, err error)
+	Pop(topic job.Topic) (j *job.Job, err error)
 	Finish(topic job.Topic, id job.Id) (err error)
 	Delete(topic job.Topic, id job.Id) (err error)
 
@@ -120,8 +120,7 @@ func (d dispatch) Add(topic job.Topic, id job.Id,
 // is not zero, it will requeue after ttr time. if user doesn't call finish before
 // that time, then this job can be pop again. User need to make sure ttr time is
 // reasonable.
-func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
-	id, body = "", ""
+func (d dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
 
 	// find job from ready queue
 	nameVersion, err := d.queue.Pop(topic)
@@ -137,7 +136,7 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 		return
 	}
 
-	j, err := d.pool.LoadReadyJob(topic, id, version)
+	j, err = d.pool.LoadReadyJob(topic, id, version)
 	if err != nil {
 		return
 	}
@@ -149,7 +148,7 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 		}
 	}
 
-	return j.ID, j.Body, nil
+	return j, nil
 }
 
 // Finish job. ack the processed job after user has done their job.
