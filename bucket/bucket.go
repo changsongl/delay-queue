@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	DefaultMaxFetchNum = 20
+	DefaultMaxFetchNum uint64 = 20
 )
 
 // Bucket interface to save jobs and repeat is searched
