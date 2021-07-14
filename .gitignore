@@ -18,4 +18,5 @@ go.sum
 
 # IDE and OS
 .idea
+
 .DS_Store

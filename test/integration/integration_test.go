@@ -18,7 +18,7 @@ import (
 // It will test add job, consume and remove.
 func TestDelayQueueAddAndRemove(t *testing.T) {
 	// push n jobs with delay within 1 min
-	DelayTimeSeconds := 60
+	DelayTimeSeconds := 30
 	Jobs := 200
 	topic, key := "TestDelayQueueAddAndRemove-topic", "TestDelayQueueAddAndRemove-set"
 	rand.Seed(time.Now().Unix())
@@ -64,7 +64,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 
 	// check after 1.5 min, all jobs should be done
 	t.Log("Sleeping")
-	time.Sleep(90 * time.Second)
+	time.Sleep(50 * time.Second)
 
 	num, err := RecordNumbers(key)
 	require.NoError(t, err)

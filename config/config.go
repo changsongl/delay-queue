@@ -50,6 +50,7 @@ type DelayQueue struct {
 	BucketMaxFetchNum  uint64 `yaml:"bucket_max_fetch_num,omitempty" json:"bucket_max_fetch_num,omitempty"`
 	QueueName          string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
 	TimerFetchInterval int    `yaml:"timer_fetch_interval,omitempty" json:"timer_fetch_interval,omitempty"`
+	TimerFetchDelay    int    `yaml:"timer_fetch_delay,omitempty" json:"timer_fetch_delay,omitempty"`
 }
 
 // Redis redis configuration
