@@ -49,6 +49,7 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 				"unlock failed",
 				log.String("job", j.GetName()),
 				log.Reflect("err", err),
+				log.Bool("ok", ok),
 			)
 		}
 	}()
