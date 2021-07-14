@@ -134,11 +134,11 @@ func (r *router) pop(ctx *gin.Context) {
 		return
 	}
 
-	id, body, err := r.dispatch.Pop(uriParam.Topic)
+	j, err := r.dispatch.Pop(uriParam.Topic)
 	if err != nil {
 		r.rsp.Error(ctx, err)
 		return
 	}
 
-	r.rsp.OkWithIdAndBody(ctx, id, body)
+	r.rsp.OkWithJob(ctx, j)
 }

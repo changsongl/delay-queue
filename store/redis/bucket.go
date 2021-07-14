@@ -11,9 +11,9 @@ import (
 func (s *storage) CreateJobInBucket(bucketName string, j *job.Job, isTTR bool) error {
 	var delayTime float64
 	if isTTR {
-		delayTime = float64(j.GetDelayTimeFromNow().Unix())
-	} else {
 		delayTime = float64(j.GetTTRTimeFromNow().Unix())
+	} else {
+		delayTime = float64(j.GetDelayTimeFromNow().Unix())
 	}
 
 	_, err := s.rds.ZAdd(context.Background(), bucketName, redis.Z{
@@ -49,7 +49,7 @@ func (s *storage) GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersi
 	}
 
 	for _, nameString := range nameStrings {
-		nvs = append(nvs, job.NewNameVersion(nameString))
+		nvs = append(nvs, job.NewNameVersionString(nameString))
 	}
 	return nvs, nil
 }

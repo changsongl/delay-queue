@@ -3,6 +3,8 @@ Translations:
 
 - [中文文档](./README_ZH.md)
 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
+
 ### Introduction
 **This is project is still working in progress. Don't use it in production. I will release BETA when it is ready.**
 
@@ -17,6 +19,33 @@ future.
 4. Be OOD to separate logic and different storage implementations.
 5. Unit Tested.
 
+### How to run the delay queue?
+````shell
+# clone project
+git clone https://github.com/changsongl/delay-queue.git
+
+# build the project
+make
+
+# run the project
+bin/delayqueue
+````
+
+````shell
+# flags
+bin/delayqueue -help
+  -config.file string
+        config file (default "../../config/config.yaml")
+  -config.type string
+        config type
+  -env string
+        delay queue env: debug, release (default "release")
+  -version
+        display build info
+````
+
+The default configuration file is `config/config.yaml.example`.
+
 ### Usage
 - ##### SDK [Link](https://github.com/changsongl/delay-queue-client)
 
@@ -24,7 +53,7 @@ future.
 
 ````http request
 // Push job
-POST 127.0.0.1:8080/topic/mytopic/job
+POST 127.0.0.1:8000/topic/mytopic/job
 body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 // response 
@@ -36,19 +65,25 @@ body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 ````http request
 // Pop job
-GET 127.0.0.1:8080/topic/mytopic/job
+GET 127.0.0.1:8000/topic/mytopic/job
 
 // response
 {
-    "id": "myid1",
+    "message": "ok",
     "success": true,
-    "value": "body"
+    "data": {
+        "body": "body",
+        "delay": 10,
+        "id": "myid1",
+        "topic": "mytopic",
+        "ttr": 4
+    }
 }
 ````
 
 ````http request
 // Delete job
-DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
+DELETE 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {
@@ -59,7 +94,7 @@ DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
 
 ````http request
 // Delete job
-PUT 127.0.0.1:8080/topic/mytopic/job/myid1
+PUT 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {

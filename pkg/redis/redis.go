@@ -16,6 +16,7 @@ type Redis interface {
 	Expire(ctx context.Context, key string, expiration time.Duration) (bool, error)
 	ExpireAt(ctx context.Context, key string, tm time.Time) (bool, error)
 	Ttl(ctx context.Context, key string) (time.Duration, error)
+	FlushDB(ctx context.Context) error
 
 	// kv
 	Get(ctx context.Context, key string) (string, error)
@@ -104,9 +105,9 @@ func New(conf config.Redis) Redis {
 			Username:     conf.Username,
 			Password:     conf.Password,
 			DB:           conf.DB,
-			DialTimeout:  conf.DialTimeout,
-			ReadTimeout:  conf.ReadTimeout,
-			WriteTimeout: conf.WriteTimeout,
+			DialTimeout:  time.Duration(conf.DialTimeout) * time.Millisecond,
+			ReadTimeout:  time.Duration(conf.ReadTimeout) * time.Millisecond,
+			WriteTimeout: time.Duration(conf.WriteTimeout) * time.Millisecond,
 			PoolSize:     conf.PoolSize,
 			MinIdleConns: conf.MinIdleConns,
 		},

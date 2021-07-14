@@ -1,13 +1,13 @@
 package config
 
 import (
+	encodeJson "encoding/json"
 	"errors"
 	"github.com/changsongl/delay-queue/config/decode"
 	"github.com/changsongl/delay-queue/config/decode/json"
 	"github.com/changsongl/delay-queue/config/decode/yaml"
 	"io/ioutil"
 	"os"
-	"time"
 )
 
 type FileType string
@@ -21,34 +21,38 @@ const (
 // default configurations
 const (
 	// delay queue configuration
-	DefaultDQBindAddress = ":8000"
-	DefaultDQBucketName  = "dq_bucket"
-	DefaultDQQueueName   = "dq_queue"
-	DefaultDQBucketSize  = 2
+	DefaultDQBindAddress       = ":8000"
+	DefaultDQBucketName        = "dq_bucket"
+	DefaultDQQueueName         = "dq_queue"
+	DefaultDQBucketSize        = 8
+	DefaultDQBucketMaxFetchNum = 200
+	DefaultTimerFetchInterval  = 10000
 
 	// redis configuration
 	DefaultRedisNetwork      = "tcp"
 	DefaultRedisAddress      = "127.0.0.1:6379"
-	DefaultRedisDialTimeout  = 5 * time.Second
-	DefaultRedisReadTimeout  = 2 * time.Second
-	DefaultRedisWriteTimeout = 2 * time.Second
+	DefaultRedisDialTimeout  = 5000
+	DefaultRedisReadTimeout  = 3000
+	DefaultRedisWriteTimeout = 3000
 )
 
-// configuration
+// Conf configuration
 type Conf struct {
 	DelayQueue DelayQueue `yaml:"delay_queue,omitempty" json:"delay_queue,omitempty"`
 	Redis      Redis      `yaml:"redis,omitempty" json:"redis,omitempty"`
 }
 
-// delay queue configuration
+// DelayQueue delay queue configuration
 type DelayQueue struct {
-	BindAddress string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
-	BucketName  string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
-	BucketSize  uint64 `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
-	QueueName   string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
+	BindAddress        string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
+	BucketName         string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
+	BucketSize         uint64 `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
+	BucketMaxFetchNum  uint64 `yaml:"bucket_max_fetch_num,omitempty" json:"bucket_max_fetch_num,omitempty"`
+	QueueName          string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
+	TimerFetchInterval int    `yaml:"timer_fetch_interval,omitempty" json:"timer_fetch_interval,omitempty"`
 }
 
-// redis configuration
+// Redis redis configuration
 type Redis struct {
 	// The network type, either tcp or unix.
 	// Default is tcp.
@@ -63,7 +67,7 @@ type Redis struct {
 	Username string `yaml:"username,omitempty" json:"username,omitempty"`
 
 	// Optional password. Must match the password specified in the
-	// requirepass server configuration option (if connecting to a Redis 5.0 instance, or lower),
+	// require pass server configuration option (if connecting to a Redis 5.0 instance, or lower),
 	// or the User password when connecting to a Redis 6.0 instance, or greater,
 	// that is using the Redis ACL system.
 	Password string `yaml:"password,omitempty" json:"password,omitempty"`
@@ -73,15 +77,15 @@ type Redis struct {
 
 	// Dial timeout for establishing new connections.
 	// Default is 5 seconds.
-	DialTimeout time.Duration `yaml:"dial_timeout,omitempty" json:"dial_timeout,omitempty"`
+	DialTimeout int `yaml:"dial_timeout,omitempty" json:"dial_timeout,omitempty"`
 	// Timeout for socket reads. If reached, commands will fail
 	// with a timeout instead of blocking. Use value -1 for no timeout and 0 for default.
 	// Default is 3 seconds.
-	ReadTimeout time.Duration `yaml:"read_timeout,omitempty" json:"read_timeout,omitempty"`
+	ReadTimeout int `yaml:"read_timeout,omitempty" json:"read_timeout,omitempty"`
 	// Timeout for socket writes. If reached, commands will fail
 	// with a timeout instead of blocking.
 	// Default is ReadTimeout.
-	WriteTimeout time.Duration `yaml:"write_timeout,omitempty" json:"write_timeout,omitempty"`
+	WriteTimeout int `yaml:"write_timeout,omitempty" json:"write_timeout,omitempty"`
 
 	// Maximum number of socket connections.
 	// Default is 10 connections per every CPU as reported by runtime.NumCPU.
@@ -95,10 +99,12 @@ type Redis struct {
 func New() *Conf {
 	return &Conf{
 		DelayQueue: DelayQueue{
-			BindAddress: DefaultDQBindAddress,
-			BucketName:  DefaultDQBucketName,
-			BucketSize:  DefaultDQBucketSize,
-			QueueName:   DefaultDQQueueName,
+			BindAddress:        DefaultDQBindAddress,
+			BucketName:         DefaultDQBucketName,
+			BucketSize:         DefaultDQBucketSize,
+			QueueName:          DefaultDQQueueName,
+			BucketMaxFetchNum:  DefaultDQBucketMaxFetchNum,
+			TimerFetchInterval: DefaultTimerFetchInterval,
 		},
 		Redis: Redis{
 			Network:      DefaultRedisNetwork,
@@ -153,4 +159,10 @@ func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
 	}
 
 	return nil, errors.New("invalid file type")
+}
+
+// String config string
+func (c *Conf) String() string {
+	bytes, _ := encodeJson.Marshal(c)
+	return string(bytes)
 }

@@ -14,7 +14,7 @@ import (
 
 type Dispatch interface {
 	Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
-	Pop(topic job.Topic) (id job.Id, body job.Body, err error)
+	Pop(topic job.Topic) (j *job.Job, err error)
 	Finish(topic job.Topic, id job.Id) (err error)
 	Delete(topic job.Topic, id job.Id) (err error)
 
@@ -70,24 +70,27 @@ func (d dispatch) Run() {
 // addTask the task is to get ready jobs from bucket and check data is valid,
 // if yes then push to ready queue, if not then discard.
 func (d dispatch) addTask(bid uint64) {
-	d.timer.AddTask(func(num int) (int, error) {
-		nameVersions, err := d.bucket.GetBucketJobs(bid, uint(num))
+	d.timer.AddTask(func() (bool, error) {
+		nameVersions, err := d.bucket.GetBucketJobs(bid)
 		if err != nil {
 			d.logger.Error("timer.task bucket.GetBucketJobs failed", log.String("err", err.Error()))
-			return 0, err
+			return false, err
 		}
 
 		for _, nameVersion := range nameVersions {
-			d.logger.Info("process", log.String("nameVersion", string(nameVersion)))
+			d.logger.Debug("process", log.String("nameVersion", string(nameVersion)))
 			topic, id, version, err := nameVersion.Parse()
 			if err != nil {
-				d.logger.Error("timer.task nameVersion.Parse failed", log.String("err", err.Error()))
+				d.logger.Error("timer.task nameVersion.Parse failed",
+					log.String("err", err.Error()), log.String("nameVersion", string(nameVersion)))
 				continue
 			}
 
 			j, err := d.pool.LoadReadyJob(topic, id, version)
 			if err != nil {
-				d.logger.Error("timer.task pool.LoadReadyJob failed", log.String("err", err.Error()))
+				d.logger.Error("timer.task pool.LoadReadyJob failed",
+					log.String("err", err.Error()), log.String("topic", string(topic)),
+					log.String("id", string(id)), log.String("version", version.String()))
 				continue
 			}
 
@@ -97,7 +100,7 @@ func (d dispatch) addTask(bid uint64) {
 			}
 		}
 
-		return len(nameVersions), nil
+		return len(nameVersions) == int(d.bucket.GetMaxFetchNum()), nil
 	})
 }
 
@@ -117,8 +120,7 @@ func (d dispatch) Add(topic job.Topic, id job.Id,
 // is not zero, it will requeue after ttr time. if user doesn't call finish before
 // that time, then this job can be pop again. User need to make sure ttr time is
 // reasonable.
-func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
-	id, body = "", ""
+func (d dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
 
 	// find job from ready queue
 	nameVersion, err := d.queue.Pop(topic)
@@ -134,19 +136,19 @@ func (d dispatch) Pop(topic job.Topic) (id job.Id, body job.Body, err error) {
 		return
 	}
 
-	j, err := d.pool.LoadReadyJob(topic, id, version)
+	j, err = d.pool.LoadReadyJob(topic, id, version)
 	if err != nil {
 		return
 	}
 
-	if j.Delay != 0 {
+	if j.TTR != 0 {
 		err := d.bucket.CreateJob(j, true)
 		if err != nil {
 			d.logger.Error("bucket ttr requeue failed", log.String("err", err.Error()))
 		}
 	}
 
-	return j.ID, j.Body, nil
+	return j, nil
 }
 
 // Finish job. ack the processed job after user has done their job.

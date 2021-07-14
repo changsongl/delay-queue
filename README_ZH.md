@@ -1,5 +1,7 @@
 # delay-queue
 
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
+
 ### 介绍
 **这个项目还在持续开发当中，功能还不完善到生产使用。当基本功能完成和单元测试覆盖后，
 将发布Beta版本，提供大家使用。**
@@ -14,6 +16,32 @@
 4. 设计对象编程，可以轻松替换组件和实现多态。
 5. 单元测试覆盖到100%。
 
+
+### 如何运行 delay queue?
+````shell
+# clone project
+git clone https://github.com/changsongl/delay-queue.git
+
+# build the project
+make
+
+# run the project
+bin/delayqueue
+````
+
+````shell
+# flags
+bin/delayqueue -help
+  -config.file string
+        config file (default "../../config/config.yaml")
+  -config.type string
+        config type
+  -env string
+        delay queue env: debug, release (default "release")
+  -version
+        display build info
+````
+
 ### 使用用例
 - ##### SDK [链接](https://github.com/changsongl/delay-queue-client)
 
@@ -21,7 +49,7 @@
 
 ````http request
 // Push job
-POST 127.0.0.1:8080/topic/mytopic/job
+POST 127.0.0.1:8000/topic/mytopic/job
 body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 // response 
@@ -33,19 +61,25 @@ body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 
 ````http request
 // Pop job
-GET 127.0.0.1:8080/topic/mytopic/job
+GET 127.0.0.1:8000/topic/mytopic/job
 
 // response
 {
-    "id": "myid1",
+    "message": "ok",
     "success": true,
-    "value": "body"
+    "data": {
+        "body": "body",
+        "delay": 10,
+        "id": "myid1",
+        "topic": "mytopic",
+        "ttr": 4
+    }
 }
 ````
 
 ````http request
 // Delete job
-DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
+DELETE 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {
@@ -56,7 +90,7 @@ DELETE 127.0.0.1:8080/topic/mytopic/job/myid1
 
 ````http request
 // Delete job
-PUT 127.0.0.1:8080/topic/mytopic/job/myid1
+PUT 127.0.0.1:8000/topic/mytopic/job/myid1
 
 // response
 {

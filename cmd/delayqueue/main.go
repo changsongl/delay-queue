@@ -19,13 +19,15 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
 	// configuration and environment
 	configFile = flag.String("config.file", "../../config/config.yaml", "config file")
 	configType = flag.String("config.type", "", "config type")
-	env        = flag.String("env", "release", "delay queue env")
+	env        = flag.String("env", "release", "delay queue env: debug, release")
+	version    = flag.Bool("version", false, "display build info")
 
 	// errors
 	ErrorInvalidFileType = errors.New("invalid config file type")
@@ -79,6 +81,11 @@ func run() int {
 
 	// parse flags
 	flag.Parse()
+	if *version {
+		fmt.Printf(vars.BuildInfo())
+		return 0
+	}
+
 	file, fileType, err := loadConfigFlags()
 	if err != nil {
 		fmt.Printf("Load conifuration failed: %v\n", err)
@@ -107,6 +114,9 @@ func run() int {
 		return 1
 	}
 
+	// print config
+	l.Info("Loaded Configuration", log.String("Configuration", conf.String()))
+
 	wg := sync.WaitGroup{}
 	wg.Add(1)
 
@@ -115,10 +125,15 @@ func run() int {
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
+
 			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
+			if maxFetchNum := conf.DelayQueue.BucketMaxFetchNum; maxFetchNum != 0 {
+				b.SetMaxFetchNum(maxFetchNum)
+			}
+
 			p := pool.New(s, l)
 			q := queue.New(s, conf.DelayQueue.QueueName)
-			t := timer.New()
+			t := timer.New(l, time.Duration(conf.DelayQueue.TimerFetchInterval)*time.Millisecond)
 			return b, p, q, t
 		},
 	)
@@ -139,7 +154,7 @@ func run() int {
 	)
 	s.Init()
 	s.RegisterRouters(dqApi.RouterFunc())
-	err = s.Run(":8080")
+	err = s.Run(conf.DelayQueue.BindAddress)
 	if err != nil {
 		l.Error(err.Error())
 		return 1

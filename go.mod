@@ -3,11 +3,13 @@ module github.com/changsongl/delay-queue
 go 1.14
 
 require (
+	github.com/changsongl/delay-queue-client v0.0.3
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis/v8 v8.4.4
-	github.com/go-redsync/redsync v1.4.2 // indirect
 	github.com/go-redsync/redsync/v4 v4.0.4
+	github.com/golang/mock v1.5.0
+	github.com/gomodule/redigo v2.0.0+incompatible // indirect
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.9.0
 	github.com/stretchr/testify v1.7.0

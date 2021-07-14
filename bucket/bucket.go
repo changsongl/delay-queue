@@ -9,27 +9,41 @@ import (
 	"sync/atomic"
 )
 
+const (
+	DefaultMaxFetchNum uint64 = 20
+)
+
 // Bucket interface to save jobs and repeat is searched
 // for jobs which are ready to process
 type Bucket interface {
 	CreateJob(j *job.Job, isTTR bool) error
 	GetBuckets() []uint64
-	GetBucketJobs(bid uint64, num uint) ([]job.NameVersion, error)
+	GetBucketJobs(bid uint64) ([]job.NameVersion, error)
+
+	GetMaxFetchNum() uint64
+	SetMaxFetchNum(num uint64)
 }
 
 // bucket implement Bucket interface
 type bucket struct {
-	s     store.Store   // real storage
-	size  uint64        // bucket size for round robin
-	name  string        // bucket name prefix
-	count *uint64       // current bucket
-	locks []lock.Locker // locks for buckets
+	s           store.Store   // real storage
+	size        uint64        // bucket size for round robin
+	name        string        // bucket name prefix
+	count       *uint64       // current bucket
+	locks       []lock.Locker // locks for buckets
+	maxFetchNum uint64        // max number for fetching jobs
 }
 
 // New a Bucket interface object
 func New(s store.Store, size uint64, name string) Bucket {
 	var c uint64 = 0
-	b := &bucket{s: s, size: size, name: name, count: &c}
+	b := &bucket{
+		s:           s,
+		size:        size,
+		name:        name,
+		count:       &c,
+		maxFetchNum: DefaultMaxFetchNum,
+	}
 	b.locks = make([]lock.Locker, 0, size)
 
 	var i uint64 = 0
@@ -75,9 +89,9 @@ func (b *bucket) GetBuckets() []uint64 {
 // GetBucketJobs return job.NameVersion which are ready to process. If this function
 // call return names and the size of name is equal to num. Then it mean it may be
 // more jobs are ready, but they are still in the bucket.
-func (b *bucket) GetBucketJobs(bid uint64, num uint) ([]job.NameVersion, error) {
+func (b *bucket) GetBucketJobs(bid uint64) ([]job.NameVersion, error) {
 	bucketName := b.getBucketNameById(bid)
-	nameVersions, err := b.s.GetReadyJobsInBucket(bucketName, num)
+	nameVersions, err := b.s.GetReadyJobsInBucket(bucketName, uint(b.maxFetchNum))
 	if err != nil {
 		return nil, err
 	}
@@ -92,4 +106,14 @@ func (b *bucket) GetLock(bid uint64) (lock.Locker, error) {
 	}
 
 	return b.locks[bid], nil
+}
+
+// GetMaxFetchNum return the max number of job to fetch each time
+func (b *bucket) GetMaxFetchNum() uint64 {
+	return b.maxFetchNum
+}
+
+// SetMaxFetchNum set the max number of job to fetch each time
+func (b *bucket) SetMaxFetchNum(num uint64) {
+	b.maxFetchNum = num
 }

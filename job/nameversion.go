@@ -2,13 +2,18 @@ package job
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 )
 
 type NameVersion string
 
-func NewNameVersion(str string) NameVersion {
+func NewNameVersionString(str string) NameVersion {
 	return NameVersion(str)
+}
+
+func NewNameVersion(topic Topic, id Id, version Version) NameVersion {
+	return NameVersion(fmt.Sprintf("%s_%s_%s", topic, id, version))
 }
 
 func (nv NameVersion) MarshalBinary() ([]byte, error) {
