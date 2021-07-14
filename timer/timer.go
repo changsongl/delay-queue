@@ -10,7 +10,7 @@ import (
 
 // TaskFunc only task function can be added to
 // the timer.
-type TaskFunc func() (bool, error)
+type TaskFunc func() (notWait bool, err error)
 
 // Timer is for processing task. it checks buckets
 // for popping jobs. it will put ready jobs to queue.
@@ -26,7 +26,8 @@ type timer struct {
 	tasks        []taskStub     // task stub
 	once         sync.Once      // once
 	l            log.Logger     // logger
-	taskInterval time.Duration
+	taskInterval time.Duration  // fetch interval
+	taskDelay    time.Duration  // fetch delay when bucket has more jobs after a fetching. Default no wait.
 }
 
 // taskStub task stub for function itself and context,
@@ -38,11 +39,12 @@ type taskStub struct {
 	l      log.Logger
 }
 
-func New(l log.Logger, taskInterval time.Duration) Timer {
+func New(l log.Logger, taskInterval, taskDelay time.Duration) Timer {
 	return &timer{
 		wg:           sync.WaitGroup{},
 		l:            l.WithModule("timer"),
 		taskInterval: taskInterval,
+		taskDelay:    taskDelay,
 	}
 }
 
@@ -64,7 +66,7 @@ func (t *timer) Run() {
 	for _, task := range t.tasks {
 		go func(task taskStub) {
 			defer t.wg.Done()
-			task.run(t.taskInterval)
+			task.run(t.taskInterval, t.taskDelay)
 		}(task)
 	}
 
@@ -84,21 +86,24 @@ func (t *timer) Close() {
 
 // run a task, and wait for context is done.
 // this can be implement with more thinking.
-func (task taskStub) run(fetchInterval time.Duration) {
+func (task taskStub) run(fetchInterval, fetchDelay time.Duration) {
 	for {
 		select {
 		case <-task.ctx.Done():
 			return
 		default:
-			hasMore, err := task.f()
+			// TODO: 添加check interval
+			notWait, err := task.f()
 			if err != nil {
 				task.l.Error("task run failed", log.String("err", err.Error()))
 				time.Sleep(fetchInterval)
 				continue
-			} else if hasMore {
+			} else if !notWait {
 				time.Sleep(fetchInterval)
 				continue
 			}
+
+			time.Sleep(fetchDelay)
 		}
 	}
 }
