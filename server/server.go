@@ -66,6 +66,8 @@ func (s *server) Init() {
 		s.r.Use(gin.LoggerWithConfig(gin.LoggerConfig{}))
 	}
 
+	WrapPProf(s.r)
+
 	regMetricFunc := setServerMetricHandlerAndMiddleware()
 	regMetricFunc(s.r)
 }
