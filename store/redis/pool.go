@@ -37,7 +37,7 @@ func (s *storage) CreateJob(j *job.Job) error {
 	return nil
 }
 
-// Replace job information, only if the job is exists.
+// ReplaceJob Replace job information, only if the job is exists.
 func (s *storage) ReplaceJob(j *job.Job) error {
 	str, err := s.encoder.Encode(j)
 	if err != nil {
