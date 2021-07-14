@@ -10,7 +10,7 @@ import (
 
 // TaskFunc only task function can be added to
 // the timer.
-type TaskFunc func() (notWait bool, err error)
+type TaskFunc func() (hasMore bool, err error)
 
 // Timer is for processing task. it checks buckets
 // for popping jobs. it will put ready jobs to queue.
@@ -92,17 +92,17 @@ func (task taskStub) run(fetchInterval, fetchDelay time.Duration) {
 		case <-task.ctx.Done():
 			return
 		default:
-			// TODO: 添加check interval
-			notWait, err := task.f()
+			hasMore, err := task.f()
 			if err != nil {
 				task.l.Error("task run failed", log.String("err", err.Error()))
 				time.Sleep(fetchInterval)
 				continue
-			} else if !notWait {
+			} else if !hasMore {
 				time.Sleep(fetchInterval)
 				continue
 			}
 
+			// have more jobs, wait delay time to fetch next time
 			time.Sleep(fetchDelay)
 		}
 	}
