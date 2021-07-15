@@ -10,7 +10,7 @@ import (
 	"testing"
 )
 
-func TestBucketCreateJob(t *testing.T){
+func TestBucketCreateJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -32,7 +32,7 @@ func TestBucketCreateJob(t *testing.T){
 	require.Equal(t, expectErr, err, "second create should be expect error")
 }
 
-func TestBucketGetBuckets(t *testing.T){
+func TestBucketGetBuckets(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -47,7 +47,7 @@ func TestBucketGetBuckets(t *testing.T){
 		0, 1,
 	}
 
-	for i, bucketName := range bucketNames{
+	for i, bucketName := range bucketNames {
 		if i > len(expectNames) {
 			t.Error("it is greater than expecting length")
 			t.FailNow()
@@ -57,7 +57,7 @@ func TestBucketGetBuckets(t *testing.T){
 	}
 }
 
-func TestBucketGetBucketJobs(t *testing.T){
+func TestBucketGetBucketJobs(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -82,7 +82,7 @@ func TestBucketGetBucketJobs(t *testing.T){
 	require.Equal(t, expectNvs, versions, "version names should be equal")
 }
 
-func TestBucketFetchNum(t *testing.T){
+func TestBucketFetchNum(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
