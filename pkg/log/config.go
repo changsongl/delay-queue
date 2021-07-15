@@ -29,7 +29,11 @@ type Config struct {
 }
 
 func NewConfig() *Config {
-	return &Config{conf: zap.NewProductionConfig()}
+	c := &Config{conf: zap.NewProductionConfig()}
+	c.conf.Encoding = "console"
+	c.conf.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+
+	return c
 }
 
 type Option interface {
