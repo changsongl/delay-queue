@@ -13,6 +13,7 @@ import (
 func TestQueuePush(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
 	queueName := "test_queue_name"
 	jobTopic := job.Topic("job_topic")
 	queue := fmt.Sprintf("%s_%s", queueName, jobTopic)

@@ -1,7 +1,9 @@
 package timer
 
 import (
-	"github.com/changsongl/delay-queue/pkg/log"
+	"errors"
+	log "github.com/changsongl/delay-queue/test/mock/log"
+	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/require"
 	"sync/atomic"
 	"testing"
@@ -9,24 +11,32 @@ import (
 )
 
 func TestTimer(t *testing.T) {
-	logger, err := log.New()
-	require.NoError(t, err)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	logger := log.NewMockLogger(ctrl)
+	logger.EXPECT().WithModule(gomock.Any()).MaxTimes(3).Return(logger)
+	logger.EXPECT().Error(gomock.Any(), gomock.Any()).MinTimes(1)
+
 	delay, interval := time.Second, 2*time.Second
 	var noDelayCount, delayCount int64
-
 	testCases := []struct {
 		sleep   time.Duration
 		atLeast int64
 		task    TaskFunc
 		count   *int64
 	}{
-		{sleep: 10 * time.Second, atLeast: 4, count: &noDelayCount, task: func() (hasMore bool, err error) {
+		{sleep: 5 * interval, atLeast: 4, count: &noDelayCount, task: func() (hasMore bool, err error) {
 			atomic.AddInt64(&noDelayCount, 1)
 			return false, nil
 		}},
-		{sleep: 10 * time.Second, atLeast: 9, count: &delayCount, task: func() (hasMore bool, err error) {
+		{sleep: 5 * interval, atLeast: 9, count: &delayCount, task: func() (hasMore bool, err error) {
 			atomic.AddInt64(&delayCount, 1)
 			return true, nil
+		}},
+		{sleep: 2 * interval, atLeast: 1, count: &delayCount, task: func() (hasMore bool, err error) {
+			atomic.AddInt64(&delayCount, 1)
+			return false, errors.New("error")
 		}},
 	}
 
