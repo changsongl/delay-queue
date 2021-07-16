@@ -16,7 +16,7 @@ func TestTimer(t *testing.T) {
 
 	logger := log.NewMockLogger(ctrl)
 	logger.EXPECT().WithModule(gomock.Any()).MaxTimes(3).Return(logger)
-	logger.EXPECT().Error(gomock.Any(), gomock.Any()).MinTimes(1)
+	logger.EXPECT().Error(gomock.Any(), gomock.Any()).MaxTimes(3)
 
 	delay, interval := time.Second, 2*time.Second
 	var noDelayCount, delayCount int64
