@@ -8,6 +8,11 @@ import (
 	"github.com/changsongl/delay-queue/store"
 )
 
+var (
+	ErrJobNotExist    = errors.New("job is not exists")
+	ErrVersionNotSame = errors.New("version is not same")
+)
+
 // Pool is an interface for manage information of jobs.
 type Pool interface {
 	CreateJob(topic job.Topic, id job.Id,
@@ -80,7 +85,7 @@ func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*jo
 	}
 
 	if !j.IsVersionSame(version) {
-		return nil, errors.New("version is not same")
+		return nil, ErrVersionNotSame
 	}
 
 	return j, nil
@@ -112,7 +117,7 @@ func (p pool) DeleteJob(topic job.Topic, id job.Id) error {
 	if err != nil {
 		return err
 	} else if !result {
-		return errors.New("job is not exists")
+		return ErrJobNotExist
 	}
 
 	return nil

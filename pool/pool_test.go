@@ -156,4 +156,80 @@ func TestCreateJobCreateOrReplace(t *testing.T) {
 func TestLoadReadyJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	mockStore := store.NewMockStore(ctrl)
+	mockLogger := log.NewMockLogger(ctrl)
+	mockLogger.EXPECT().WithModule(gomock.Any()).Return(mockLogger)
+	ver := job.NewVersion()
+	j := &job.Job{Version: ver}
+
+	// test case 1 job.Get error
+	jobErr := errors.New("job err")
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return nil, jobErr
+	})
+	p := New(mockStore, mockLogger)
+	jRet, err := p.LoadReadyJob("", "", ver)
+	require.Nil(t, jRet)
+	require.Equal(t, jobErr, err)
+
+	// test case 2: s.LoadJob error
+	loadErr := errors.New("load err")
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return j, nil
+	})
+	mockStore.EXPECT().LoadJob(j).Return(loadErr)
+	jRet, err = p.LoadReadyJob("", "", ver)
+	require.Nil(t, jRet)
+	require.Equal(t, loadErr, err)
+
+	// test case 3 j.IsVersionSame error
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return j, nil
+	})
+	mockStore.EXPECT().LoadJob(j).Return(nil)
+	jRet, err = p.LoadReadyJob("", "", job.NewVersion())
+	require.Nil(t, jRet)
+	require.Equal(t, ErrVersionNotSame, err)
+
+	// test case 4 pass
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return j, nil
+	})
+	mockStore.EXPECT().LoadJob(j).Return(nil)
+	jRet, err = p.LoadReadyJob("", "", ver)
+	require.Equal(t, j, jRet)
+	require.Nil(t, err)
+}
+
+func TestLoadDeleteJob(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockStore := store.NewMockStore(ctrl)
+	mockLogger := log.NewMockLogger(ctrl)
+	mockLogger.EXPECT().WithModule(gomock.Any()).Return(mockLogger)
+	mockLock := mocklock.NewMockLocker(ctrl)
+
+	j := &job.Job{Mutex: mockLock}
+	p := New(mockStore, mockLogger)
+
+	// test case 1: job.Get
+	jobGetErr := errors.New("job err")
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return nil, jobGetErr
+	})
+	err := p.DeleteJob("", "")
+	require.Equal(t, jobGetErr, err)
+
+	// test case 2: j.Lock error
+	lockErr := errors.New("lock err")
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		return j, nil
+	})
+	mockLock.EXPECT().Lock().Return(lockErr)
+	err = p.DeleteJob("", "")
+	require.Equal(t, lockErr, err)
+
+	//  TODO: test case 3: DeleteJob error and unlock error
 }
