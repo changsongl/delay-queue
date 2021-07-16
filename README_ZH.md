@@ -2,6 +2,15 @@
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
 
+````
+  ____       _                ___                        
+ |  _ \  ___| | __ _ _   _   / _ \ _   _  ___ _   _  ___ 
+ | | | |/ _ \ |/ _` | | | | | | | | | | |/ _ \ | | |/ _ \
+ | |_| |  __/ | (_| | |_| | | |_| | |_| |  __/ |_| |  __/
+ |____/ \___|_|\__,_|\__, |  \__\_\\__,_|\___|\__,_|\___|
+                     |___/   
+````
+
 ### 介绍
 **这个项目还在持续开发当中，功能还不完善到生产使用。当基本功能完成和单元测试覆盖后，
 将发布Beta版本，提供大家使用。**

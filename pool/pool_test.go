@@ -152,3 +152,8 @@ func TestCreateJobCreateOrReplace(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadReadyJob(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+}
