@@ -104,6 +104,8 @@ func run() int {
 		return 1
 	}
 
+	fmt.Println(logo())
+
 	// load config file
 	l.Info("Init configuration",
 		log.String("file", file), log.String("file.type", string(fileType)))
@@ -176,4 +178,15 @@ func createMainLog() (log.Logger, error) {
 	}
 
 	return l.WithModule("main"), nil
+}
+
+// logo of delay queue
+func logo() string {
+	return "" +
+		"  ____       _                ___                        \n" +
+		" |  _ \\  ___| | __ _ _   _   / _ \\ _   _  ___ _   _  ___ \n" +
+		" | | | |/ _ \\ |/ _` | | | | | | | | | | |/ _ \\ | | |/ _ \\\n" +
+		" | |_| |  __/ | (_| | |_| | | |_| | |_| |  __/ |_| |  __/\n" +
+		" |____/ \\___|_|\\__,_|\\__, |  \\__\\_\\\\__,_|\\___|\\__,_|\\___|\n" +
+		"                     |___/  "
 }

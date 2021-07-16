@@ -42,6 +42,8 @@ type Conf struct {
 	Redis      Redis      `yaml:"redis,omitempty" json:"redis,omitempty"`
 }
 
+// TODO: add duration to configs
+
 // DelayQueue delay queue configuration
 type DelayQueue struct {
 	BindAddress        string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`

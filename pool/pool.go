@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/changsongl/delay-queue/job"
-	"github.com/changsongl/delay-queue/pkg/encode"
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/store"
 )
@@ -21,7 +20,6 @@ type Pool interface {
 type pool struct {
 	s store.Store
 	l log.Logger
-	e encode.Encoder
 }
 
 // New a pool with logger and storage
@@ -49,6 +47,7 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 				"unlock failed",
 				log.String("job", j.GetName()),
 				log.Reflect("err", err),
+				log.Bool("ok", ok),
 			)
 		}
 	}()

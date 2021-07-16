@@ -5,6 +5,15 @@ Translations:
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
 
+````
+  ____       _                ___                        
+ |  _ \  ___| | __ _ _   _   / _ \ _   _  ___ _   _  ___ 
+ | | | |/ _ \ |/ _` | | | | | | | | | | |/ _ \ | | |/ _ \
+ | |_| |  __/ | (_| | |_| | | |_| | |_| |  __/ |_| |  __/
+ |____/ \___|_|\__,_|\__, |  \__\_\\__,_|\___|\__,_|\___|
+                     |___/   
+````
+
 ### Introduction
 **This is project is still working in progress. Don't use it in production. I will release BETA when it is ready.**
 
