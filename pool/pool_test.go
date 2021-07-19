@@ -231,5 +231,43 @@ func TestLoadDeleteJob(t *testing.T) {
 	err = p.DeleteJob("", "")
 	require.Equal(t, lockErr, err)
 
-	//  TODO: test case 3: DeleteJob error and unlock error
+	//  test case 3: DeleteJob cases
+	deleteErr := errors.New("delete err")
+	unlockErr := errors.New("unlock err")
+	cases := []struct {
+		Err          error
+		Result       bool
+		ExpErr       error
+		UnlockResult bool
+		UnlockErr    error
+		LogError     bool
+	}{
+		{Err: deleteErr, Result: false, ExpErr: deleteErr, UnlockResult: false, UnlockErr: unlockErr, LogError: true},
+		{Err: deleteErr, Result: true, ExpErr: deleteErr, UnlockResult: true, UnlockErr: unlockErr, LogError: true},
+		{Err: nil, Result: true, ExpErr: nil, UnlockResult: true, UnlockErr: nil, LogError: false},
+		{Err: nil, Result: false, ExpErr: ErrJobNotExist, UnlockResult: false, UnlockErr: nil, LogError: true},
+	}
+
+	idParam, topicParam := "id", "topic"
+
+	for _, test := range cases {
+		gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+			require.EqualValues(t, topicParam, topic)
+			require.EqualValues(t, idParam, id)
+			return j, nil
+		})
+		mockLock.EXPECT().Lock().Return(nil)
+		mockLock.EXPECT().Unlock().Return(test.UnlockResult, test.UnlockErr)
+		mockStore.EXPECT().DeleteJob(j).Return(test.Result, test.Err)
+		if test.LogError {
+			mockLogger.EXPECT().Error(gomock.Any(), gomock.Any(), gomock.Any()).Return()
+		}
+
+		err := p.DeleteJob(job.Topic(topicParam), job.Id(idParam))
+		if test.ExpErr != nil {
+			require.Equal(t, test.ExpErr, err)
+		} else {
+			require.Nil(t, err)
+		}
+	}
 }
