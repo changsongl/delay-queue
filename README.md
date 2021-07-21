@@ -159,6 +159,29 @@ Jobs contain many properties like:
 
 <img alt="job-state" src="https://tech.youzan.com/content/images/2016/03/job-state.png" width="80%">
 
+### Monitor
+This project is using Prometheus as the monitor tool. It exposes the metrics apis to Prometheus.
+You can use Prometheus and Grafana as the monitor tools.
+
+````
+# HELP delay_queue_in_flight_jobs_numbers_in_bucket Gauge of the number of inflight jobs in each bucket
+# TYPE delay_queue_in_flight_jobs_numbers_in_bucket gauge
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_0"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_1"} 3
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_2"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_3"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_4"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_5"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_6"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_7"} 0
+.
+.
+.
+# HELP delay_queue_in_flight_jobs_numbers_in_queue Gauge of the number of inflight jobs in each queue
+# TYPE delay_queue_in_flight_jobs_numbers_in_queue gauge
+delay_queue_in_flight_jobs_numbers_in_queue{queue="dq_queue_mytopic"} 1
+````
+
 ### What's the plan of this project?
 I will work on this project all the time! I will add more features and 
  fix bugs, and I will make this project ready to use in production. Star
