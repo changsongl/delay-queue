@@ -3,7 +3,7 @@ package bucket
 import (
 	"errors"
 	"github.com/changsongl/delay-queue/job"
-	mock_log "github.com/changsongl/delay-queue/test/mock/log"
+	logmock "github.com/changsongl/delay-queue/test/mock/log"
 	lockmock "github.com/changsongl/delay-queue/test/mock/pkg/lock"
 	storemock "github.com/changsongl/delay-queue/test/mock/store"
 	"github.com/golang/mock/gomock"
@@ -17,7 +17,7 @@ func TestBucketCreateJob(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
-	mLog := mock_log.NewMockLogger(ctrl)
+	mLog := logmock.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
 	b := New(sm, mLog, 10, "test_bucket")
@@ -30,6 +30,8 @@ func TestBucketCreateJob(t *testing.T) {
 	// case2: has error
 	expectErr := errors.New("expect error")
 	sm.EXPECT().CreateJobInBucket(gomock.Eq("test_bucket_2"), gomock.All(), gomock.All()).Return(expectErr)
+	sm.EXPECT().CollectInFlightJobNumberBucket(gomock.Any()).AnyTimes()
+
 	err = b.CreateJob(nil, true)
 	require.Equal(t, expectErr, err, "second create should be expect error")
 }
@@ -40,9 +42,10 @@ func TestBucketGetBuckets(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
-	mLog := mock_log.NewMockLogger(ctrl)
+	mLog := logmock.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
+	sm.EXPECT().CollectInFlightJobNumberBucket(gomock.Any()).AnyTimes()
 	b := New(sm, mLog, 2, "test_bucket")
 	bucketNames := b.GetBuckets()
 
@@ -66,9 +69,10 @@ func TestBucketGetBucketJobs(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
-	mLog := mock_log.NewMockLogger(ctrl)
+	mLog := logmock.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
+	sm.EXPECT().CollectInFlightJobNumberBucket(gomock.Any()).AnyTimes()
 	b := New(sm, mLog, 2, "test_bucket")
 
 	expectErr := errors.New("error GetReadyJobsInBucket")
@@ -92,9 +96,10 @@ func TestBucketFetchNum(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
-	mLog := mock_log.NewMockLogger(ctrl)
+	mLog := logmock.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
+	sm.EXPECT().CollectInFlightJobNumberBucket(gomock.Any()).AnyTimes()
 	b := New(sm, mLog, 2, "test_bucket")
 	require.Equal(t, DefaultMaxFetchNum, b.GetMaxFetchNum(), "fetch number should be default")
 

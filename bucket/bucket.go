@@ -141,18 +141,18 @@ func (b *bucket) CollectMetrics() {
 	go func() {
 		// TODO: graceful shutdown
 		for {
-			time.Sleep(30 * time.Second)
-
 			var i uint64
 			for ; i < b.size; i++ {
 				// collect
 				bName := b.getBucketNameById(i)
-				num, err := b.s.CollectInFlightJobNumber(bName)
+				num, err := b.s.CollectInFlightJobNumberBucket(bName)
 				if err != nil {
-					b.l.Error("b.s.CollectInFlightJobNumber failed", log.Error(err))
+					b.l.Error("b.s.CollectInFlightJobNumberBucket failed", log.Error(err))
 				}
 				b.onFlightJobGauge.WithLabelValues(bName).Set(float64(num))
 			}
+
+			time.Sleep(30 * time.Second)
 		}
 	}()
 }

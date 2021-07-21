@@ -55,7 +55,7 @@ func (s *storage) GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersi
 }
 
 // CollectInFlightJobNumber collect the number of inflight jobs in bucket
-func (s *storage) CollectInFlightJobNumber(bucket string) (uint64, error) {
+func (s *storage) CollectInFlightJobNumberBucket(bucket string) (uint64, error) {
 	num, err := s.rds.ZCard(context.Background(), bucket)
 	return uint64(num), err
 }
