@@ -24,6 +24,7 @@ func TestBucketCreateJob(t *testing.T) {
 
 	// case1: no error
 	sm.EXPECT().CreateJobInBucket(gomock.Eq("test_bucket_1"), gomock.All(), gomock.All()).Return(nil)
+	sm.EXPECT().CollectInFlightJobNumberBucket(gomock.Any()).AnyTimes()
 	err := b.CreateJob(nil, true)
 	require.NoError(t, err, "first create should no error")
 

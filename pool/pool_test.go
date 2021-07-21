@@ -260,7 +260,7 @@ func TestLoadDeleteJob(t *testing.T) {
 		mockLock.EXPECT().Unlock().Return(test.UnlockResult, test.UnlockErr)
 		mockStore.EXPECT().DeleteJob(j).Return(test.Result, test.Err)
 		if test.LogError {
-			mockLogger.EXPECT().Error(gomock.Any(), gomock.Any(), gomock.Any()).Return()
+			mockLogger.EXPECT().Error(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return()
 		}
 
 		err := p.DeleteJob(job.Topic(topicParam), job.Id(idParam))

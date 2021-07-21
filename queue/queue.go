@@ -7,7 +7,12 @@ import (
 	"github.com/changsongl/delay-queue/store"
 	"github.com/prometheus/client_golang/prometheus"
 	"strings"
+	"sync"
 	"time"
+)
+
+var (
+	metricOnce sync.Once
 )
 
 // Queue is a queue for ready jobs.
@@ -61,11 +66,13 @@ func (r *queue) CollectMetrics() {
 		Help: "Gauge of the number of inflight jobs in each queue",
 	}, []string{"topic"})
 
-	err := prometheus.Register(r.onFlightJobGauge)
-	if err != nil {
-		r.l.Error("prometheus.Register failed", log.Error(err))
-		return
-	}
+	metricOnce.Do(func() {
+		err := prometheus.Register(r.onFlightJobGauge)
+		if err != nil {
+			r.l.Error("prometheus.Register failed", log.Error(err))
+			return
+		}
+	})
 
 	go func() {
 		// TODO: graceful shutdown

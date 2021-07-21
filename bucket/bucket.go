@@ -8,12 +8,17 @@ import (
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/store"
 	"github.com/prometheus/client_golang/prometheus"
+	"sync"
 	"sync/atomic"
 	"time"
 )
 
 const (
 	DefaultMaxFetchNum uint64 = 20
+)
+
+var (
+	metricOnce sync.Once
 )
 
 // Bucket interface to save jobs and repeat is searched
@@ -132,11 +137,13 @@ func (b *bucket) CollectMetrics() {
 		Help: "Gauge of the number of inflight jobs in each bucket",
 	}, []string{"bucket"})
 
-	err := prometheus.Register(b.onFlightJobGauge)
-	if err != nil {
-		b.l.Error("prometheus.Register failed", log.Error(err))
-		return
-	}
+	metricOnce.Do(func() {
+		err := prometheus.Register(b.onFlightJobGauge)
+		if err != nil {
+			b.l.Error("prometheus.Register failed", log.Error(err))
+			return
+		}
+	})
 
 	go func() {
 		// TODO: graceful shutdown
