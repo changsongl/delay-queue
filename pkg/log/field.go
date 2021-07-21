@@ -313,3 +313,8 @@ func Object(key string, val zapcore.ObjectMarshaler) Field {
 func Any(key string, value interface{}) Field {
 	return Field{zapField: zap.Any(key, value)}
 }
+
+// Error constructs a field of  error
+func Error(err error) Field {
+	return Field{zapField: zap.Error(err)}
+}

@@ -10,6 +10,8 @@ import (
 	"time"
 )
 
+// TODO: add pipeline
+
 type Redis interface {
 	Del(ctx context.Context, key string) (bool, error)
 	Exists(ctx context.Context, key string) (bool, error)

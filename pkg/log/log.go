@@ -2,6 +2,7 @@ package log
 
 import (
 	"go.uber.org/zap"
+	"strings"
 )
 
 type Logger interface {
@@ -61,6 +62,6 @@ func (l *logger) Fatal(s string, fs ...Field) {
 }
 
 func (l *logger) Write(b []byte) (n int, err error) {
-	l.Info(string(b))
+	l.Info(strings.TrimRight(string(b), "\n"))
 	return len(b), nil
 }

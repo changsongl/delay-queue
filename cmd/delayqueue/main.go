@@ -112,7 +112,7 @@ func run() int {
 	conf := config.New()
 	err = conf.Load(file, fileType)
 	if err != nil {
-		l.Error(err.Error())
+		l.Error("conf.Load failed", log.Error(err))
 		return 1
 	}
 
@@ -128,13 +128,13 @@ func run() int {
 			cli := client.New(conf.Redis)
 			s := redis.NewStore(cli)
 
-			b := bucket.New(s, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
+			b := bucket.New(s, l, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
 			if maxFetchNum := conf.DelayQueue.BucketMaxFetchNum; maxFetchNum != 0 {
 				b.SetMaxFetchNum(maxFetchNum)
 			}
 
 			p := pool.New(s, l)
-			q := queue.New(s, conf.DelayQueue.QueueName)
+			q := queue.New(s, l, conf.DelayQueue.QueueName)
 			t := timer.New(
 				l, time.Duration(conf.DelayQueue.TimerFetchInterval)*time.Millisecond,
 				time.Duration(conf.DelayQueue.TimerFetchDelay)*time.Millisecond,
@@ -161,7 +161,7 @@ func run() int {
 	s.RegisterRouters(dqApi.RouterFunc())
 	err = s.Run(conf.DelayQueue.BindAddress)
 	if err != nil {
-		l.Error(err.Error())
+		l.Error("s.Run failed", log.Error(err))
 		return 1
 	}
 

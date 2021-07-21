@@ -35,6 +35,36 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CollectInFlightJobNumberBucket mocks base method.
+func (m *MockStore) CollectInFlightJobNumberBucket(bucket string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CollectInFlightJobNumberBucket", bucket)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CollectInFlightJobNumberBucket indicates an expected call of CollectInFlightJobNumberBucket.
+func (mr *MockStoreMockRecorder) CollectInFlightJobNumberBucket(bucket interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CollectInFlightJobNumberBucket", reflect.TypeOf((*MockStore)(nil).CollectInFlightJobNumberBucket), bucket)
+}
+
+// CollectInFlightJobNumberQueue mocks base method.
+func (m *MockStore) CollectInFlightJobNumberQueue(queuePrefix string) (map[string]uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CollectInFlightJobNumberQueue", queuePrefix)
+	ret0, _ := ret[0].(map[string]uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CollectInFlightJobNumberQueue indicates an expected call of CollectInFlightJobNumberQueue.
+func (mr *MockStoreMockRecorder) CollectInFlightJobNumberQueue(queuePrefix interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CollectInFlightJobNumberQueue", reflect.TypeOf((*MockStore)(nil).CollectInFlightJobNumberQueue), queuePrefix)
+}
+
 // CreateJob mocks base method.
 func (m *MockStore) CreateJob(j *job.Job) error {
 	m.ctrl.T.Helper()
@@ -137,17 +167,17 @@ func (mr *MockStoreMockRecorder) PopJobFromQueue(queue interface{}) *gomock.Call
 }
 
 // PushJobToQueue mocks base method.
-func (m *MockStore) PushJobToQueue(queue string, j *job.Job) error {
+func (m *MockStore) PushJobToQueue(queuePrefix, queueName string, j *job.Job) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PushJobToQueue", queue, j)
+	ret := m.ctrl.Call(m, "PushJobToQueue", queuePrefix, queueName, j)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // PushJobToQueue indicates an expected call of PushJobToQueue.
-func (mr *MockStoreMockRecorder) PushJobToQueue(queue, j interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) PushJobToQueue(queuePrefix, queueName, j interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushJobToQueue", reflect.TypeOf((*MockStore)(nil).PushJobToQueue), queue, j)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PushJobToQueue", reflect.TypeOf((*MockStore)(nil).PushJobToQueue), queuePrefix, queueName, j)
 }
 
 // ReplaceJob mocks base method.

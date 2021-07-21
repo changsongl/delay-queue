@@ -141,6 +141,29 @@ PUT 127.0.0.1:8000/topic/mytopic/job/myid1
 
 <img alt="job-state" src="https://tech.youzan.com/content/images/2016/03/job-state.png" width="80%">
 
+### 组件监控
+项目使用普罗米修斯作为监控手段，暴露了metrics接口给普罗米修斯进行数据拉取。
+你可以使用普罗米修斯和Grafana的作为自己的监控手段。
+
+````
+# HELP delay_queue_in_flight_jobs_numbers_in_bucket Gauge of the number of inflight jobs in each bucket
+# TYPE delay_queue_in_flight_jobs_numbers_in_bucket gauge
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_0"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_1"} 3
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_2"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_3"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_4"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_5"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_6"} 0
+delay_queue_in_flight_jobs_numbers_in_bucket{bucket="dq_bucket_7"} 0
+.
+.
+.
+# HELP delay_queue_in_flight_jobs_numbers_in_queue Gauge of the number of inflight jobs in each queue
+# TYPE delay_queue_in_flight_jobs_numbers_in_queue gauge
+delay_queue_in_flight_jobs_numbers_in_queue{queue="dq_queue_mytopic"} 1
+````
+
 ### 项目计划
 我将持续打磨这个项目，并且加入更多的功能和修复问题。我将会让这个项目可以投入到生产环境使用。
 如果喜欢的话，欢迎给个星或者Fork参与进来，这里欢迎你的贡献！
