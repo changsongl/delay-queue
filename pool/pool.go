@@ -47,11 +47,11 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 	}
 
 	defer func() {
-		if ok, err := j.Unlock(); !ok || err != nil {
+		if ok, unlockErr := j.Unlock(); !ok || unlockErr != nil {
 			p.l.Error(
-				"unlock failed",
+				"j.Unlock failed",
 				log.String("job", j.GetName()),
-				log.Reflect("err", err),
+				log.Error(unlockErr),
 				log.Bool("ok", ok),
 			)
 		}
@@ -104,11 +104,12 @@ func (p pool) DeleteJob(topic job.Topic, id job.Id) error {
 	}
 
 	defer func() {
-		if ok, err := j.Unlock(); !ok || err != nil {
+		if ok, unlockErr := j.Unlock(); !ok || unlockErr != nil {
 			p.l.Error(
-				"unlock failed",
+				"j.Unlock failed",
 				log.String("job", j.GetName()),
-				log.Reflect("err", err),
+				log.Error(unlockErr),
+				log.Bool("ok", ok),
 			)
 		}
 	}()

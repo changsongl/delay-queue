@@ -35,6 +35,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// CollectInFlightJobNumber mocks base method.
+func (m *MockStore) CollectInFlightJobNumber(bucket string) (uint64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CollectInFlightJobNumber", bucket)
+	ret0, _ := ret[0].(uint64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CollectInFlightJobNumber indicates an expected call of CollectInFlightJobNumber.
+func (mr *MockStoreMockRecorder) CollectInFlightJobNumber(bucket interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CollectInFlightJobNumber", reflect.TypeOf((*MockStore)(nil).CollectInFlightJobNumber), bucket)
+}
+
 // CreateJob mocks base method.
 func (m *MockStore) CreateJob(j *job.Job) error {
 	m.ctrl.T.Helper()

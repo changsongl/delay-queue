@@ -94,7 +94,7 @@ func (task taskStub) run(fetchInterval, fetchDelay time.Duration) {
 		default:
 			hasMore, err := task.f()
 			if err != nil {
-				task.l.Error("task run failed", log.String("err", err.Error()))
+				task.l.Error("task.f task run failed", log.Error(err))
 				time.Sleep(fetchInterval)
 				continue
 			} else if !hasMore {

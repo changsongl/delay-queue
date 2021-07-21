@@ -3,6 +3,7 @@ package bucket
 import (
 	"errors"
 	"github.com/changsongl/delay-queue/job"
+	mock_log "github.com/changsongl/delay-queue/test/mock/log"
 	lockmock "github.com/changsongl/delay-queue/test/mock/pkg/lock"
 	storemock "github.com/changsongl/delay-queue/test/mock/store"
 	"github.com/golang/mock/gomock"
@@ -16,9 +17,10 @@ func TestBucketCreateJob(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
+	mLog := mock_log.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
-	b := New(sm, 10, "test_bucket")
+	b := New(sm, mLog, 10, "test_bucket")
 
 	// case1: no error
 	sm.EXPECT().CreateJobInBucket(gomock.Eq("test_bucket_1"), gomock.All(), gomock.All()).Return(nil)
@@ -38,9 +40,10 @@ func TestBucketGetBuckets(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
+	mLog := mock_log.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
-	b := New(sm, 2, "test_bucket")
+	b := New(sm, mLog, 2, "test_bucket")
 	bucketNames := b.GetBuckets()
 
 	expectNames := []uint64{
@@ -63,9 +66,10 @@ func TestBucketGetBucketJobs(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
+	mLog := mock_log.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
-	b := New(sm, 2, "test_bucket")
+	b := New(sm, mLog, 2, "test_bucket")
 
 	expectErr := errors.New("error GetReadyJobsInBucket")
 	sm.EXPECT().GetReadyJobsInBucket(gomock.Eq("test_bucket_0"), gomock.All()).Return(nil, expectErr)
@@ -88,12 +92,15 @@ func TestBucketFetchNum(t *testing.T) {
 
 	sm := storemock.NewMockStore(ctrl)
 	lockMk := lockmock.NewMockLocker(ctrl)
+	mLog := mock_log.NewMockLogger(ctrl)
 
 	sm.EXPECT().GetLock(gomock.All()).Return(lockMk).AnyTimes()
-	b := New(sm, 2, "test_bucket")
+	b := New(sm, mLog, 2, "test_bucket")
 	require.Equal(t, DefaultMaxFetchNum, b.GetMaxFetchNum(), "fetch number should be default")
 
 	var newNum uint64 = 30
 	b.SetMaxFetchNum(newNum)
 	require.Equal(t, newNum, b.GetMaxFetchNum(), "fetch number should be new number")
 }
+
+// TODO: test collect metric

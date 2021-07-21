@@ -18,6 +18,7 @@ type Store interface {
 
 	CreateJobInBucket(bucket string, j *job.Job, isTTR bool) error
 	GetReadyJobsInBucket(bucket string, num uint) ([]job.NameVersion, error)
+	CollectInFlightJobNumber(bucket string) (uint64, error)
 
 	PushJobToQueue(queue string, j *job.Job) error
 	PopJobFromQueue(queue string) (job.NameVersion, error)

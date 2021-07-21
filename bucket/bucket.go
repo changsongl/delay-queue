@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/lock"
+	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/store"
+	"github.com/prometheus/client_golang/prometheus"
 	"sync/atomic"
+	"time"
 )
 
 const (
@@ -26,22 +29,25 @@ type Bucket interface {
 
 // bucket implement Bucket interface
 type bucket struct {
-	s           store.Store   // real storage
-	size        uint64        // bucket size for round robin
-	name        string        // bucket name prefix
-	count       *uint64       // current bucket
-	locks       []lock.Locker // locks for buckets
-	maxFetchNum uint64        // max number for fetching jobs
+	s                store.Store          // real storage
+	size             uint64               // bucket size for round robin
+	name             string               // bucket name prefix
+	count            *uint64              // current bucket
+	locks            []lock.Locker        // locks for buckets
+	maxFetchNum      uint64               // max number for fetching jobs
+	l                log.Logger           // logger
+	onFlightJobGauge *prometheus.GaugeVec // on flight jobs number in bucket
 }
 
 // New a Bucket interface object
-func New(s store.Store, size uint64, name string) Bucket {
+func New(s store.Store, l log.Logger, size uint64, name string) Bucket {
 	var c uint64 = 0
 	b := &bucket{
 		s:           s,
 		size:        size,
 		name:        name,
 		count:       &c,
+		l:           l,
 		maxFetchNum: DefaultMaxFetchNum,
 	}
 	b.locks = make([]lock.Locker, 0, size)
@@ -52,19 +58,21 @@ func New(s store.Store, size uint64, name string) Bucket {
 		i++
 	}
 
+	b.CollectMetrics()
+
 	return b
 }
 
 // CreateJob create job on bucket, bucket is selected
 // by round robin policy
 func (b *bucket) CreateJob(j *job.Job, isTTR bool) error {
-	currentBucket := b.getCurrentBucket()
+	currentBucket := b.getNextBucket()
 	err := b.s.CreateJobInBucket(currentBucket, j, isTTR)
 	return err
 }
 
-// getCurrentBucket get current round robin bucket
-func (b *bucket) getCurrentBucket() string {
+// getNextBucket get next round robin bucket
+func (b *bucket) getNextBucket() string {
 	current := atomic.AddUint64(b.count, 1)
 	return b.getBucketNameById(current % b.size)
 }
@@ -116,4 +124,35 @@ func (b *bucket) GetMaxFetchNum() uint64 {
 // SetMaxFetchNum set the max number of job to fetch each time
 func (b *bucket) SetMaxFetchNum(num uint64) {
 	b.maxFetchNum = num
+}
+
+func (b *bucket) CollectMetrics() {
+	b.onFlightJobGauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+		Name: "delay_queue_in_flight_jobs_numbers_in_bucket",
+		Help: "Gauge of the number of inflight jobs in each bucket",
+	}, []string{"bucket"})
+
+	err := prometheus.Register(b.onFlightJobGauge)
+	if err != nil {
+		b.l.Error("prometheus.Register failed", log.Error(err))
+		return
+	}
+
+	go func() {
+		// TODO: graceful shutdown
+		for {
+			time.Sleep(30 * time.Second)
+
+			var i uint64
+			for ; i < b.size; i++ {
+				// collect
+				bName := b.getBucketNameById(i)
+				num, err := b.s.CollectInFlightJobNumber(bName)
+				if err != nil {
+					b.l.Error("b.s.CollectInFlightJobNumber failed", log.Error(err))
+				}
+				b.onFlightJobGauge.WithLabelValues(bName).Set(float64(num))
+			}
+		}
+	}()
 }
