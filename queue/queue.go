@@ -6,6 +6,7 @@ import (
 	"github.com/changsongl/delay-queue/pkg/log"
 	"github.com/changsongl/delay-queue/store"
 	"github.com/prometheus/client_golang/prometheus"
+	"strings"
 	"time"
 )
 
@@ -58,7 +59,7 @@ func (r *queue) CollectMetrics() {
 	r.onFlightJobGauge = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Name: "delay_queue_in_flight_jobs_numbers_in_queue",
 		Help: "Gauge of the number of inflight jobs in each queue",
-	}, []string{"queue"})
+	}, []string{"topic"})
 
 	err := prometheus.Register(r.onFlightJobGauge)
 	if err != nil {
@@ -75,7 +76,8 @@ func (r *queue) CollectMetrics() {
 			}
 
 			for queueName, num := range queueMapJobNum {
-				r.onFlightJobGauge.WithLabelValues(queueName).Set(float64(num))
+				topicName := strings.TrimLeft(queueName, r.getQueuePrefix())
+				r.onFlightJobGauge.WithLabelValues(topicName).Set(float64(num))
 			}
 
 			time.Sleep(30 * time.Second)

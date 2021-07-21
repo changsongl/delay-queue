@@ -7,9 +7,11 @@ import (
 	"github.com/changsongl/delay-queue/pool"
 	"github.com/changsongl/delay-queue/queue"
 	"github.com/changsongl/delay-queue/timer"
+	"github.com/prometheus/client_golang/prometheus"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Dispatch interface {
@@ -22,27 +24,31 @@ type Dispatch interface {
 }
 
 type dispatch struct {
-	logger log.Logger
-	bucket bucket.Bucket
-	pool   pool.Pool
-	queue  queue.Queue
-	timer  timer.Timer
+	logger            log.Logger
+	bucket            bucket.Bucket
+	pool              pool.Pool
+	queue             queue.Queue
+	timer             timer.Timer
+	jobDelayHistogram *prometheus.HistogramVec
 }
 
 func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer)) Dispatch {
 	b, p, q, t := new()
 
-	return &dispatch{
+	d := &dispatch{
 		logger: logger.WithModule("dispatch"),
 		bucket: b,
 		pool:   p,
 		queue:  q,
 		timer:  t,
 	}
+
+	d.initMetrics()
+	return d
 }
 
 // Run the dispatch with timer for getting ready jobs
-func (d dispatch) Run() {
+func (d *dispatch) Run() {
 	buckets := d.bucket.GetBuckets()
 
 	for _, b := range buckets {
@@ -69,7 +75,7 @@ func (d dispatch) Run() {
 
 // addTask the task is to get ready jobs from bucket and check data is valid,
 // if yes then push to ready queue, if not then discard.
-func (d dispatch) addTask(bid uint64) {
+func (d *dispatch) addTask(bid uint64) {
 	d.timer.AddTask(func() (bool, error) {
 		nameVersions, err := d.bucket.GetBucketJobs(bid)
 		if err != nil {
@@ -105,7 +111,7 @@ func (d dispatch) addTask(bid uint64) {
 }
 
 // Add job to job pool and push to bucket.
-func (d dispatch) Add(topic job.Topic, id job.Id,
+func (d *dispatch) Add(topic job.Topic, id job.Id,
 	delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error) {
 
 	j, err := d.pool.CreateJob(topic, id, delay, ttr, body, override)
@@ -113,14 +119,20 @@ func (d dispatch) Add(topic job.Topic, id job.Id,
 		return err
 	}
 
-	return d.bucket.CreateJob(j, false)
+	err = d.bucket.CreateJob(j, false)
+
+	if err == nil {
+		d.observeJobDelayTime(j)
+	}
+
+	return err
 }
 
 // Pop job from bucket and return job info to let user process. if the ttr time
 // is not zero, it will requeue after ttr time. if user doesn't call finish before
 // that time, then this job can be pop again. User need to make sure ttr time is
 // reasonable.
-func (d dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
+func (d *dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
 
 	// find job from ready queue
 	nameVersion, err := d.queue.Pop(topic)
@@ -153,14 +165,38 @@ func (d dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
 
 // Finish job. ack the processed job after user has done their job.
 // delay queue will stop retrying and delete all information.
-func (d dispatch) Finish(topic job.Topic, id job.Id) (err error) {
+func (d *dispatch) Finish(topic job.Topic, id job.Id) (err error) {
 	// set it is done
 	return d.pool.DeleteJob(topic, id)
 }
 
 // Delete job before. only delete job, when the bucket event is trigger,
 // it gonna find the job is deleted, so it won't push to the ready queue.
-func (d dispatch) Delete(topic job.Topic, id job.Id) (err error) {
+func (d *dispatch) Delete(topic job.Topic, id job.Id) (err error) {
 	// delete job
 	return d.pool.DeleteJob(topic, id)
+}
+
+// initMetrics init all prometheus metrics
+func (d *dispatch) initMetrics() {
+	d.jobDelayHistogram = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+		Name: "delay_queue_job_delay_time",
+		Help: "Histogram of the delay time of the job (seconds)",
+		Buckets: []float64{
+			float64(time.Minute / time.Second),            // 1 minute
+			float64(time.Hour / time.Second),              // 1 hour
+			float64((24 * time.Hour) / time.Second),       // 1 day
+			float64((30 * 24 * time.Hour) / time.Second),  // 1 month (30 days)
+			float64((365 * 24 * time.Hour) / time.Second), // 1 year (365 days)
+		},
+	}, []string{"topic"})
+
+	if err := prometheus.Register(d.jobDelayHistogram); err != nil {
+		d.logger.Error("prometheus.Register d.jobDelayHistogram failed", log.Error(err))
+	}
+}
+
+// observeJobDelayTime observe the job delay time to prometheus
+func (d *dispatch) observeJobDelayTime(job *job.Job) {
+	d.jobDelayHistogram.WithLabelValues(string(job.Topic)).Observe(float64(time.Duration(job.Delay) / time.Second))
 }
