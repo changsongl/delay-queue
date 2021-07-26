@@ -27,6 +27,7 @@ const (
 	DefaultDQBucketSize        = 8
 	DefaultDQBucketMaxFetchNum = 200
 	DefaultTimerFetchInterval  = 10000
+	DefaultFetchJobBlockTime   = 5
 
 	// redis configuration
 	DefaultRedisNetwork      = "tcp"
@@ -46,13 +47,24 @@ type Conf struct {
 
 // DelayQueue delay queue configuration
 type DelayQueue struct {
-	BindAddress        string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
-	BucketName         string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
-	BucketSize         uint64 `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
-	BucketMaxFetchNum  uint64 `yaml:"bucket_max_fetch_num,omitempty" json:"bucket_max_fetch_num,omitempty"`
-	QueueName          string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
-	TimerFetchInterval int    `yaml:"timer_fetch_interval,omitempty" json:"timer_fetch_interval,omitempty"`
-	TimerFetchDelay    int    `yaml:"timer_fetch_delay,omitempty" json:"timer_fetch_delay,omitempty"`
+	// listen address
+	BindAddress string `yaml:"bind_address,omitempty" json:"bind_address,omitempty"`
+	// bucket redis key name
+	BucketName string `yaml:"bucket_name,omitempty" json:"bucket_name,omitempty"`
+	// the number of delay queue bucket, increase number could get better concurrency.
+	BucketSize uint64 `yaml:"bucket_size,omitempty" json:"bucket_size,omitempty"`
+	// max fetch number of jobs in the bucket
+	BucketMaxFetchNum uint64 `yaml:"bucket_max_fetch_num,omitempty" json:"bucket_max_fetch_num,omitempty"`
+	// queue redis key name
+	QueueName string `yaml:"queue_name,omitempty" json:"queue_name,omitempty"`
+	// fetching job interval(ms), decrease interval may get better throughout.
+	TimerFetchInterval int `yaml:"timer_fetch_interval,omitempty" json:"timer_fetch_interval,omitempty"`
+	// fetch delay(ms), if there are still job in the bucket after the fetch
+	// it will delay timer_fetch_delay ms for next fetch. Default is not wait.
+	TimerFetchDelay int `yaml:"timer_fetch_delay,omitempty" json:"timer_fetch_delay,omitempty"`
+	// block how many second for fetching jobs from queue(unit: second).
+	// default: 5 seconds.
+	FetchJobBlockTime int `yaml:"fetch_job_block_time" json:"fetch_job_block_time"`
 }
 
 // Redis redis configuration
@@ -108,6 +120,7 @@ func New() *Conf {
 			QueueName:          DefaultDQQueueName,
 			BucketMaxFetchNum:  DefaultDQBucketMaxFetchNum,
 			TimerFetchInterval: DefaultTimerFetchInterval,
+			FetchJobBlockTime:  DefaultFetchJobBlockTime,
 		},
 		Redis: Redis{
 			Network:      DefaultRedisNetwork,

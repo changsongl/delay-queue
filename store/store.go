@@ -3,6 +3,7 @@ package store
 import (
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/lock"
+	"time"
 )
 
 // Store is a common storage interface, which is for manage jobs pool,
@@ -21,6 +22,6 @@ type Store interface {
 	CollectInFlightJobNumberBucket(bucket string) (uint64, error)
 
 	PushJobToQueue(queuePrefix, queueName string, j *job.Job) error
-	PopJobFromQueue(queue string) (job.NameVersion, error)
+	PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error)
 	CollectInFlightJobNumberQueue(queuePrefix string) (map[string]uint64, error)
 }

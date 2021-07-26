@@ -27,11 +27,17 @@ type queue struct {
 	prefix           string               // prefix
 	onFlightJobGauge *prometheus.GaugeVec // on flight jobs number in bucket
 	l                log.Logger           // logger
+	blockTime        time.Duration        // queue block time
 }
 
 // New a queue with a prefix, and storage for queue.
-func New(s store.Store, l log.Logger, name string) Queue {
-	q := &queue{s: s, prefix: name, l: l}
+func New(s store.Store, l log.Logger, name string, blockTime time.Duration) Queue {
+	q := &queue{
+		s:         s,
+		prefix:    name,
+		l:         l,
+		blockTime: blockTime,
+	}
 	q.CollectMetrics()
 	return q
 }
@@ -46,7 +52,7 @@ func (r *queue) Push(j *job.Job) error {
 // Pop a job from queue by job's topic
 func (r *queue) Pop(topic job.Topic) (job.NameVersion, error) {
 	que := r.getQueueName(topic)
-	return r.s.PopJobFromQueue(que)
+	return r.s.PopJobFromQueue(que, r.blockTime)
 }
 
 // getQueueName based on topic of job and the queue prefix.

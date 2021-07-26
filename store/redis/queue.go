@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/redis"
+	"time"
 )
 
 // PushJobToQueue push the job to the given redis queue
@@ -15,15 +16,17 @@ func (s *storage) PushJobToQueue(queuePrefix, queueName string, j *job.Job) erro
 }
 
 // PopJobFromQueue pop the job from redis queue
-func (s *storage) PopJobFromQueue(queue string) (job.NameVersion, error) {
-	jStr, err := s.rds.RPop(context.Background(), queue)
+func (s *storage) PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
+	queueElement, err := s.rds.BRPop(context.Background(), queue, blockTime)
 	if redis.IsError(err) {
 		return "", err
 	} else if redis.IsNil(err) {
 		return "", nil
+	} else if len(queueElement) != 2 {
+		return "", nil
 	}
 
-	return job.NameVersion(jStr), nil
+	return job.NameVersion(queueElement[1]), nil
 }
 
 // CollectInFlightJobNumberQueue collect in flight job numbers in all queues

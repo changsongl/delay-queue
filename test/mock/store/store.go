@@ -6,6 +6,7 @@ package mock_store
 
 import (
 	reflect "reflect"
+	time "time"
 
 	job "github.com/changsongl/delay-queue/job"
 	lock "github.com/changsongl/delay-queue/pkg/lock"
@@ -152,18 +153,18 @@ func (mr *MockStoreMockRecorder) LoadJob(j interface{}) *gomock.Call {
 }
 
 // PopJobFromQueue mocks base method.
-func (m *MockStore) PopJobFromQueue(queue string) (job.NameVersion, error) {
+func (m *MockStore) PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PopJobFromQueue", queue)
+	ret := m.ctrl.Call(m, "PopJobFromQueue", queue, blockTime)
 	ret0, _ := ret[0].(job.NameVersion)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // PopJobFromQueue indicates an expected call of PopJobFromQueue.
-func (mr *MockStoreMockRecorder) PopJobFromQueue(queue interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) PopJobFromQueue(queue, blockTime interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PopJobFromQueue", reflect.TypeOf((*MockStore)(nil).PopJobFromQueue), queue)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PopJobFromQueue", reflect.TypeOf((*MockStore)(nil).PopJobFromQueue), queue, blockTime)
 }
 
 // PushJobToQueue mocks base method.

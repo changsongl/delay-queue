@@ -69,6 +69,7 @@ type Redis interface {
 	ZRemRangeByRank(ctx context.Context, key string, start, stop int64) (int64, error)
 
 	// list
+	BRPop(ctx context.Context, key string, blockTime time.Duration) ([]string, error)
 	LPush(ctx context.Context, key string, values ...interface{}) (int64, error)
 	RPush(ctx context.Context, key string, values ...interface{}) (int64, error)
 	RPop(ctx context.Context, key string) (string, error)

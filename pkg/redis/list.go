@@ -1,6 +1,9 @@
 package redis
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 func (r *redis) LPush(ctx context.Context, key string, values ...interface{}) (int64, error) {
 	return r.client.LPush(ctx, key, values...).Result()
@@ -12,6 +15,10 @@ func (r *redis) RPush(ctx context.Context, key string, values ...interface{}) (i
 
 func (r *redis) RPop(ctx context.Context, key string) (string, error) {
 	return r.client.RPop(ctx, key).Result()
+}
+
+func (r *redis) BRPop(ctx context.Context, key string, blockTime time.Duration) ([]string, error) {
+	return r.client.BRPop(ctx, blockTime, key).Result()
 }
 
 func (r *redis) LPop(ctx context.Context, key string) (string, error) {
