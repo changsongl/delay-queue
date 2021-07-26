@@ -16,6 +16,15 @@ LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.GoVersio
 
 .PHONY: build clean
 
+test-unit:
+	go test `go list ./... | grep -v integration`
+
+test-integration:
+	go test ./test/integration/...
+
+test-all:
+	go test ./...
+
 build:
 	go fmt ./...
 #	golint ./...
