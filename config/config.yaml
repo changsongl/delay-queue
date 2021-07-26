@@ -1,21 +1,21 @@
 # delay queue config
 delay_queue:
-  bind_address:         ":8000"     # listen address
-  bucket_name:          "dq_bucket"  # bucket redis key name
-  bucket_size:          8           # the number of delay queue bucket.
-                                    # increase number could get better concurrency.
-  queue_name:           "dq_queue"   # queue redis key name
-  bucket_max_fetch_num: 200         # max fetch number of jobs in the bucket
-  timer_fetch_interval: 1000        # fetching job interval(ms), decrease interval may get better throughout.
-  timer_fetch_delay:    0           # fetch delay(ms), if there are still job in the bucket after the fetch,
-                                    # it will delay timer_fetch_delay ms for next fetch. Default is not wait.
-  pop_job_block_time:   5           # block how many second for fetching jobs from queue(unit: second).
-                                    # default: 5 seconds.
+  bind_address:         "127.0.0.1:8000"     # listen address
+  bucket_name:          "dq_bucket"          # bucket redis key name
+  bucket_size:          8                    # the number of delay queue bucket.
+                                             # increase number could get better concurrency.
+  queue_name:           "dq_queue"           # queue redis key name
+  bucket_max_fetch_num: 200                  # max fetch number of jobs in the bucket
+  timer_fetch_interval: 1000                 # fetching job interval(ms), decrease interval may get better throughout.
+  timer_fetch_delay:    0                    # fetch delay(ms), if there are still job in the bucket after the fetch,
+                                             # it will delay timer_fetch_delay ms for next fetch. Default is not wait.
+  pop_job_block_time:   5                    # block how many second for fetching jobs from queue(unit: second).
+                                             # default: 5 seconds.
 
 # redis config
 redis:
-  network:       "tcp"             # redis network: tcp, unix
-  address:       "127.0.0.1:6379"  # host:port address.
+  network:       "tcp"             # redis network: tcp, unix. This is only for Single redis, not cluster.
+  address:       "127.0.0.1:6379"  # host:port address. (EX: 127.0.0.1:6379), redis cluster(ip1:port1,ip2:port2,ip3:port3)
   #dial_timeout:  5000              # dial timeout for establishing new connections.
                                    # default is 5 seconds. (ms)
   #read_timeout:  2000              # timeout for socket reads. If reached, commands will failwith a timeout instead
