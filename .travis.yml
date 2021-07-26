@@ -1,0 +1,12 @@
+language: go
+sudo: false
+arch:
+  - amd64
+go:
+  - "1.15"
+  - "1.16"
+  - master
+script:
+  - make build
+  - make test-unit
+
