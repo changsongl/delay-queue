@@ -14,7 +14,7 @@ REPO=github.com/changsongl/delay-queue/
 
 LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.GoVersion=${GO_VERSION} -X ${REPO}vars.BuildTime=${BUILD_TIME} -X ${REPO}vars.BuildVersion=${VERSION} -X ${REPO}vars.BuildGitPath=${GIT_ADDR}"
 
-.PHONY: build clean
+.PHONY: build clean test test-unit test-integration
 
 test-unit:
 	go test `go list ./... | grep -v integration`
@@ -22,7 +22,7 @@ test-unit:
 test-integration:
 	go test ./test/integration/...
 
-test-all:
+test:
 	go test ./...
 
 build:
