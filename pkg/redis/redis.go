@@ -7,6 +7,7 @@ import (
 	gredis "github.com/go-redis/redis/v8"
 	"github.com/go-redsync/redsync/v4"
 	"github.com/go-redsync/redsync/v4/redis/goredis/v8"
+	"strings"
 	"time"
 )
 
@@ -96,11 +97,48 @@ type Redis interface {
 }
 
 type redis struct {
-	client *gredis.Client
-	sync   *redsync.Redsync
+	client    gredis.Cmdable
+	closeFunc func() error
+	sync      *redsync.Redsync
+	isCluster bool
 }
 
 func New(conf config.Redis) Redis {
+	// check if it is cluster
+	_, isCluster := isClusterInstance(conf.Address)
+	if isCluster {
+		return newClusterRedis(conf)
+	}
+
+	return newSingleRedis(conf)
+}
+
+// new cluster redis
+func newClusterRedis(conf config.Redis) Redis {
+	addresses, _ := isClusterInstance(conf.Address)
+	cli := gredis.NewClusterClient(
+		&gredis.ClusterOptions{
+			Addrs:        addresses,
+			Username:     conf.Username,
+			Password:     conf.Password,
+			DialTimeout:  time.Duration(conf.DialTimeout) * time.Millisecond,
+			ReadTimeout:  time.Duration(conf.ReadTimeout) * time.Millisecond,
+			WriteTimeout: time.Duration(conf.WriteTimeout) * time.Millisecond,
+			PoolSize:     conf.PoolSize,
+			MinIdleConns: conf.MinIdleConns,
+		},
+	)
+	rs := redsync.New(goredis.NewPool(cli))
+
+	return &redis{
+		client:    cli,
+		sync:      rs,
+		closeFunc: cli.Close,
+	}
+}
+
+// new single redis
+func newSingleRedis(conf config.Redis) Redis {
 	cli := gredis.NewClient(
 		&gredis.Options{
 			Network:      conf.Network,
@@ -119,15 +157,22 @@ func New(conf config.Redis) Redis {
 	rs := redsync.New(goredis.NewPool(cli))
 
 	return &redis{
-		client: cli,
-		sync:   rs,
+		client:    cli,
+		sync:      rs,
+		closeFunc: cli.Close,
 	}
+}
+
+// isClusterInstance is to check if the add is cluster address. Ex: ip1:port1,ip2:port2
+func isClusterInstance(addr string) ([]string, bool) {
+	address := strings.Split(addr, ",")
+	return address, len(address) > 1
 }
 
 // Close close client and all connections
 func (r *redis) Close() (err error) {
 	if r.client != nil {
-		err = r.client.Close()
+		err = r.closeFunc()
 	}
 	return
 }
