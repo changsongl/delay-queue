@@ -14,6 +14,7 @@ import (
 )
 
 const (
+	// DefaultMaxFetchNum default max fetching job from bucket
 	DefaultMaxFetchNum uint64 = 20
 )
 
@@ -59,7 +60,7 @@ func New(s store.Store, l log.Logger, size uint64, name string) Bucket {
 
 	var i uint64 = 0
 	for i < size {
-		b.locks = append(b.locks, s.GetLock(b.getBucketNameById(i)))
+		b.locks = append(b.locks, s.GetLock(b.getBucketNameByID(i)))
 		i++
 	}
 
@@ -79,11 +80,11 @@ func (b *bucket) CreateJob(j *job.Job, isTTR bool) error {
 // getNextBucket get next round robin bucket
 func (b *bucket) getNextBucket() string {
 	current := atomic.AddUint64(b.count, 1)
-	return b.getBucketNameById(current % b.size)
+	return b.getBucketNameByID(current % b.size)
 }
 
-// getBucketNameById return bucket name by id
-func (b *bucket) getBucketNameById(id uint64) string {
+// getBucketNameByID return bucket name by id
+func (b *bucket) getBucketNameByID(id uint64) string {
 	return fmt.Sprintf("%s_%d", b.name, id)
 }
 
@@ -103,7 +104,7 @@ func (b *bucket) GetBuckets() []uint64 {
 // call return names and the size of name is equal to num. Then it mean it may be
 // more jobs are ready, but they are still in the bucket.
 func (b *bucket) GetBucketJobs(bid uint64) ([]job.NameVersion, error) {
-	bucketName := b.getBucketNameById(bid)
+	bucketName := b.getBucketNameByID(bid)
 	nameVersions, err := b.s.GetReadyJobsInBucket(bucketName, uint(b.maxFetchNum))
 	if err != nil {
 		return nil, err
@@ -151,7 +152,7 @@ func (b *bucket) CollectMetrics() {
 			var i uint64
 			for ; i < b.size; i++ {
 				// collect
-				bName := b.getBucketNameById(i)
+				bName := b.getBucketNameByID(i)
 				num, err := b.s.CollectInFlightJobNumberBucket(bName)
 				if err != nil {
 					b.l.Error("b.s.CollectInFlightJobNumberBucket failed", log.Error(err))

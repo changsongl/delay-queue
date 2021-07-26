@@ -12,7 +12,7 @@ import (
 )
 
 type idParam struct {
-	ID job.Id `uri:"id" json:"id" binding:"required,max=200"`
+	ID job.ID `uri:"id" json:"id" binding:"required,max=200"`
 }
 
 type topicParam struct {

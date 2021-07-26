@@ -14,11 +14,12 @@ import (
 	"time"
 )
 
+// Dispatch interface for main stream of the program
 type Dispatch interface {
-	Add(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
+	Add(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
 	Pop(topic job.Topic) (j *job.Job, err error)
-	Finish(topic job.Topic, id job.Id) (err error)
-	Delete(topic job.Topic, id job.Id) (err error)
+	Finish(topic job.Topic, id job.ID) (err error)
+	Delete(topic job.Topic, id job.ID) (err error)
 
 	Run()
 }
@@ -32,6 +33,7 @@ type dispatch struct {
 	jobDelayHistogram *prometheus.HistogramVec
 }
 
+// NewDispatch create a new dispatch to run the program
 func NewDispatch(logger log.Logger, new func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer)) Dispatch {
 	b, p, q, t := new()
 
@@ -111,7 +113,7 @@ func (d *dispatch) addTask(bid uint64) {
 }
 
 // Add job to job pool and push to bucket.
-func (d *dispatch) Add(topic job.Topic, id job.Id,
+func (d *dispatch) Add(topic job.Topic, id job.ID,
 	delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error) {
 
 	j, err := d.pool.CreateJob(topic, id, delay, ttr, body, override)
@@ -165,14 +167,14 @@ func (d *dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
 
 // Finish job. ack the processed job after user has done their job.
 // delay queue will stop retrying and delete all information.
-func (d *dispatch) Finish(topic job.Topic, id job.Id) (err error) {
+func (d *dispatch) Finish(topic job.Topic, id job.ID) (err error) {
 	// set it is done
 	return d.pool.DeleteJob(topic, id)
 }
 
 // Delete job before. only delete job, when the bucket event is trigger,
 // it gonna find the job is deleted, so it won't push to the ready queue.
-func (d *dispatch) Delete(topic job.Topic, id job.Id) (err error) {
+func (d *dispatch) Delete(topic job.Topic, id job.ID) (err error) {
 	// delete job
 	return d.pool.DeleteJob(topic, id)
 }

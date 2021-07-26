@@ -25,7 +25,7 @@ func TestCreateJobNewJobErr(t *testing.T) {
 	expJob := &job.Job{}
 	expErr := errors.New("job error")
 
-	gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR,
+	gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR,
 		body job.Body, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return expJob, expErr
 	})
@@ -52,7 +52,7 @@ func TestCreateJobLockErr(t *testing.T) {
 
 	p := New(mockStore, mockLogger)
 
-	gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR,
+	gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR,
 		body job.Body, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return expJob, nil
 	})
@@ -94,7 +94,7 @@ func TestCreateJobUnlockErr(t *testing.T) {
 		mockLock.EXPECT().Unlock().Return(testCase.unlockResult, testCase.unlockErr)
 		p := New(mockStore, mockLogger)
 
-		gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR,
+		gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR,
 			body job.Body, lockerFunc lock.LockerFunc) (*job.Job, error) {
 			return expJob, nil
 		})
@@ -138,7 +138,7 @@ func TestCreateJobCreateOrReplace(t *testing.T) {
 		mockLock.EXPECT().Unlock().Return(true, nil)
 		p := New(mockStore, mockLogger)
 
-		gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.Id, delay job.Delay, ttr job.TTR,
+		gomonkey.ApplyFunc(job.New, func(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR,
 			body job.Body, lockerFunc lock.LockerFunc) (*job.Job, error) {
 			return expJob, nil
 		})
@@ -165,7 +165,7 @@ func TestLoadReadyJob(t *testing.T) {
 
 	// test case 1 job.Get error
 	jobErr := errors.New("job err")
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return nil, jobErr
 	})
 	p := New(mockStore, mockLogger)
@@ -175,7 +175,7 @@ func TestLoadReadyJob(t *testing.T) {
 
 	// test case 2: s.LoadJob error
 	loadErr := errors.New("load err")
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return j, nil
 	})
 	mockStore.EXPECT().LoadJob(j).Return(loadErr)
@@ -184,7 +184,7 @@ func TestLoadReadyJob(t *testing.T) {
 	require.Equal(t, loadErr, err)
 
 	// test case 3 j.IsVersionSame error
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return j, nil
 	})
 	mockStore.EXPECT().LoadJob(j).Return(nil)
@@ -193,7 +193,7 @@ func TestLoadReadyJob(t *testing.T) {
 	require.Equal(t, ErrVersionNotSame, err)
 
 	// test case 4 pass
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return j, nil
 	})
 	mockStore.EXPECT().LoadJob(j).Return(nil)
@@ -216,7 +216,7 @@ func TestLoadDeleteJob(t *testing.T) {
 
 	// test case 1: job.Get
 	jobGetErr := errors.New("job err")
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return nil, jobGetErr
 	})
 	err := p.DeleteJob("", "")
@@ -224,7 +224,7 @@ func TestLoadDeleteJob(t *testing.T) {
 
 	// test case 2: j.Lock error
 	lockErr := errors.New("lock err")
-	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+	gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 		return j, nil
 	})
 	mockLock.EXPECT().Lock().Return(lockErr)
@@ -251,7 +251,7 @@ func TestLoadDeleteJob(t *testing.T) {
 	idParam, topicParam := "id", "topic"
 
 	for _, test := range cases {
-		gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.Id, lockerFunc lock.LockerFunc) (*job.Job, error) {
+		gomonkey.ApplyFunc(job.Get, func(topic job.Topic, id job.ID, lockerFunc lock.LockerFunc) (*job.Job, error) {
 			require.EqualValues(t, topicParam, topic)
 			require.EqualValues(t, idParam, id)
 			return j, nil
@@ -263,7 +263,7 @@ func TestLoadDeleteJob(t *testing.T) {
 			mockLogger.EXPECT().Error(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).Return()
 		}
 
-		err := p.DeleteJob(job.Topic(topicParam), job.Id(idParam))
+		err := p.DeleteJob(job.Topic(topicParam), job.ID(idParam))
 		if test.ExpErr != nil {
 			require.Equal(t, test.ExpErr, err)
 		} else {

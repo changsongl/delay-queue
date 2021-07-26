@@ -10,12 +10,14 @@ type decoder struct {
 	dcFunc decode.Func
 }
 
+// NewDecoder new decoder
 func NewDecoder() decode.Decoder {
 	return &decoder{
 		dcFunc: json.Unmarshal,
 	}
 }
 
+// DecodeFunc decode function
 func (d *decoder) DecodeFunc() decode.Func {
 	return d.dcFunc
 }

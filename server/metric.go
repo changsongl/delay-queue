@@ -42,12 +42,12 @@ func setServerMetricHandlerAndMiddleware() func(r *gin.Engine) {
 		r.GET("/metrics", func(c *gin.Context) {
 			promhttp.Handler().ServeHTTP(c.Writer, c.Request)
 		})
-		r.Use(saveHttpServerStat)
+		r.Use(saveHTTPServerStat)
 	}
 }
 
-// saveHttpServerStat save http server request stats to metrics.
-func saveHttpServerStat(c *gin.Context) {
+// saveHTTPServerStat save http server request stats to metrics.
+func saveHTTPServerStat(c *gin.Context) {
 	startTime := time.Now()
 	url, method := c.Request.URL.Path, c.Request.Method
 	c.Next()

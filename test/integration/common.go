@@ -8,7 +8,9 @@ import (
 )
 
 const (
-	RedisAddr      = "127.0.0.1:6379"
+	// RedisAddr redis default address
+	RedisAddr = "127.0.0.1:6379"
+	// DelayQueueAddr delay queue default address
 	DelayQueueAddr = "http://127.0.0.1:8000"
 )
 
@@ -25,6 +27,7 @@ func CleanTestingStates() error {
 	return GetRedis().FlushDB(context.Background())
 }
 
+// GetRedis get redis
 func GetRedis() redis.Redis {
 	if redisInstance == nil {
 		redisConf := config.New().Redis
@@ -35,16 +38,19 @@ func GetRedis() redis.Redis {
 	return redisInstance
 }
 
+// AddJobRecord add job to set
 func AddJobRecord(key, job string) error {
 	_, err := GetRedis().SAdd(context.Background(), key, job)
 	return err
 }
 
+// DeleteJobRecord delete job record
 func DeleteJobRecord(key, job string) error {
 	_, err := GetRedis().SRem(context.Background(), key, job)
 	return err
 }
 
+// RecordNumbers get record num
 func RecordNumbers(key string) (int64, error) {
 	return GetRedis().SCard(context.Background(), key)
 }

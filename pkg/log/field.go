@@ -8,14 +8,17 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// Field log filed
 type Field struct {
 	zapField zap.Field
 }
 
+// get zap field
 func (f Field) getZapField() zap.Field {
 	return f.zapField
 }
 
+// convert Field to  zap fields
 func getZapFields(fs ...Field) []zap.Field {
 	fields := make([]zap.Field, 0, len(fs))
 	for _, f := range fs {
@@ -25,6 +28,7 @@ func getZapFields(fs ...Field) []zap.Field {
 	return fields
 }
 
+// Binary constructs a field that carries a binary.
 func Binary(key string, val []byte) Field {
 	return Field{zapField: zap.Binary(key, val)}
 }

@@ -35,7 +35,7 @@ func TestNew(t *testing.T) {
 
 	testCases := []struct {
 		topic Topic
-		id    Id
+		id    ID
 		err   error
 	}{
 		{topic: "", id: "", err: emptyErrMsg},
@@ -62,7 +62,7 @@ func TestGet(t *testing.T) {
 	emptyErrMsg := errors.New("topic or id is empty")
 	testCases := []struct {
 		topic Topic
-		id    Id
+		id    ID
 		err   error
 	}{
 		{topic: "", id: "", err: emptyErrMsg},

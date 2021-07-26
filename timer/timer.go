@@ -39,6 +39,7 @@ type taskStub struct {
 	l      log.Logger
 }
 
+// New create a new timer for loading ready jobs from bucket
 func New(l log.Logger, taskInterval, taskDelay time.Duration) Timer {
 	return &timer{
 		wg:           sync.WaitGroup{},
@@ -48,6 +49,7 @@ func New(l log.Logger, taskInterval, taskDelay time.Duration) Timer {
 	}
 }
 
+// AddTask add task to timer
 func (t *timer) AddTask(taskFunc TaskFunc) {
 	ctx, cancelFunc := context.WithCancel(context.Background())
 	task := taskStub{

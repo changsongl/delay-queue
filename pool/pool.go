@@ -9,16 +9,18 @@ import (
 )
 
 var (
-	ErrJobNotExist    = errors.New("job is not exists")
+	// ErrJobNotExist error job is not exists
+	ErrJobNotExist = errors.New("job is not exists")
+	// ErrVersionNotSame error job version is not same
 	ErrVersionNotSame = errors.New("version is not same")
 )
 
 // Pool is an interface for manage information of jobs.
 type Pool interface {
-	CreateJob(topic job.Topic, id job.Id,
+	CreateJob(topic job.Topic, id job.ID,
 		delay job.Delay, ttr job.TTR, body job.Body, override bool) (*job.Job, error)
-	LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error)
-	DeleteJob(topic job.Topic, id job.Id) error
+	LoadReadyJob(topic job.Topic, id job.ID, version job.Version) (*job.Job, error)
+	DeleteJob(topic job.Topic, id job.ID) error
 }
 
 // pool is Pool implementation struct
@@ -33,7 +35,7 @@ func New(s store.Store, l log.Logger) Pool {
 }
 
 // CreateJob lock the job and save job into storage
-func (p pool) CreateJob(topic job.Topic, id job.Id,
+func (p pool) CreateJob(topic job.Topic, id job.ID,
 	delay job.Delay, ttr job.TTR, body job.Body, override bool) (*job.Job, error) {
 
 	j, err := job.New(topic, id, delay, ttr, body, p.s.GetLock)
@@ -73,7 +75,7 @@ func (p pool) CreateJob(topic job.Topic, id job.Id,
 // LoadReadyJob load ready job which is just gotten from bucket. this method will check
 // job version is still same. If not same, then it means the just has been replaced, so
 // this job should not process anymore.
-func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*job.Job, error) {
+func (p pool) LoadReadyJob(topic job.Topic, id job.ID, version job.Version) (*job.Job, error) {
 	j, err := job.Get(topic, id, p.s.GetLock)
 	if err != nil {
 		return nil, err
@@ -92,7 +94,7 @@ func (p pool) LoadReadyJob(topic job.Topic, id job.Id, version job.Version) (*jo
 }
 
 // DeleteJob a job, it will prevent job to be send to user.
-func (p pool) DeleteJob(topic job.Topic, id job.Id) error {
+func (p pool) DeleteJob(topic job.Topic, id job.ID) error {
 	j, err := job.Get(topic, id, p.s.GetLock)
 	if err != nil {
 		return err

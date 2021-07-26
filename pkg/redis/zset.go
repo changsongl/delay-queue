@@ -6,8 +6,10 @@ import (
 	"strconv"
 )
 
+// Z ZSet object
 type Z gredis.Z
 
+// ZRevRange zset revert range
 func (r *redis) ZRevRange(ctx context.Context, key string, start, stop int64) ([]string, error) {
 	return r.client.ZRevRange(ctx, key, start, stop).Result()
 }

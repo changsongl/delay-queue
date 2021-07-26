@@ -7,7 +7,7 @@ import (
 
 func TestNameVersionMethods(t *testing.T) {
 	topic := Topic("name")
-	id := Id("id")
+	id := ID("id")
 	version := NewVersion()
 
 	nameVer := NewNameVersion(topic, id, version)

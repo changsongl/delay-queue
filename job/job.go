@@ -8,9 +8,10 @@ import (
 	"github.com/changsongl/delay-queue/pkg/lock"
 )
 
+// Job job for delay queue
 type Job struct {
 	Topic   Topic       `json:"topic"`
-	ID      Id          `json:"id"`
+	ID      ID          `json:"id"`
 	Delay   Delay       `json:"delay"`
 	TTR     TTR         `json:"ttr"`
 	Body    Body        `json:"body"`
@@ -19,7 +20,7 @@ type Job struct {
 }
 
 // New return a job with everything init
-func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, lockerFunc lock.LockerFunc) (*Job, error) {
+func New(topic Topic, id ID, delay Delay, ttr TTR, body Body, lockerFunc lock.LockerFunc) (*Job, error) {
 	j := &Job{
 		Topic:   topic,
 		ID:      id,
@@ -40,7 +41,7 @@ func New(topic Topic, id Id, delay Delay, ttr TTR, body Body, lockerFunc lock.Lo
 }
 
 // Get a job entity before load all information from storage
-func Get(topic Topic, id Id, lockerFunc lock.LockerFunc) (*Job, error) {
+func Get(topic Topic, id ID, lockerFunc lock.LockerFunc) (*Job, error) {
 	j := &Job{
 		Topic: topic,
 		ID:    id,
@@ -74,6 +75,7 @@ func (j *Job) GetName() string {
 	return fmt.Sprintf("%s_%s", j.Topic, j.ID)
 }
 
+// GetNameWithVersion return name version of job
 func (j *Job) GetNameWithVersion() NameVersion {
 	return NewNameVersion(j.Topic, j.ID, j.Version)
 }

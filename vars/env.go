@@ -4,6 +4,8 @@ package vars
 type Env string
 
 const (
-	EnvDebug   Env = "debug"
+	// EnvDebug debug env
+	EnvDebug Env = "debug"
+	// EnvRelease release env
 	EnvRelease Env = "release"
 )

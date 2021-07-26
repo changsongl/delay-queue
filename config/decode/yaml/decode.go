@@ -10,12 +10,14 @@ type decoder struct {
 	dcFunc decode.Func
 }
 
+// NewDecoder new yaml decoder
 func NewDecoder() decode.Decoder {
 	return &decoder{
 		dcFunc: yaml.Unmarshal,
 	}
 }
 
+// DecodeFunc yaml decode function
 func (d *decoder) DecodeFunc() decode.Func {
 	return d.dcFunc
 }

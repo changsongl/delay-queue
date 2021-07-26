@@ -25,8 +25,8 @@ type api struct {
 	sync.Once
 }
 
-// NewApi with logger object and dispatch
-func NewApi(l log.Logger, dispatch dispatch.Dispatch) API {
+// NewAPI with logger object and dispatch
+func NewAPI(l log.Logger, dispatch dispatch.Dispatch) API {
 	logger := l.WithModule("api")
 	responseHelper := http.Response{}
 	httpHandler := action.NewHandler(

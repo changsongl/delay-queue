@@ -17,7 +17,7 @@ import (
 // This is an integration test for delay queue.
 // It will test add job, consume and remove.
 func TestDelayQueueAddAndRemove(t *testing.T) {
-	defer CleanTestingStates()
+	t.Parallel()
 	// push n jobs with delay within 1 min
 	DelayTimeSeconds := 30
 	Jobs := 200
@@ -75,7 +75,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 // Testing ttr, consume but don't finish or delete.
 // Message should be consume again.
 func TestDelayQueueTTR(t *testing.T) {
-	defer CleanTestingStates()
+	t.Parallel()
 
 	topic, id := "TestDelayQueueTTR-topic", "000"
 	j, err := job.New(topic, id, job.JobDelayOption(10*time.Second), job.JobTTROption(5*time.Second))
@@ -94,9 +94,9 @@ func TestDelayQueueTTR(t *testing.T) {
 		c := consumer.New(cli, topic, consumer.WorkerNumOption(2))
 		ch := c.Consume()
 		for jobMsg := range ch {
-			jobId := jobMsg.GetId()
-			t.Logf("Receive job(id: %s): %d", jobId, time.Now().Unix())
-			if id == jobId {
+			jobID := jobMsg.GetId()
+			t.Logf("Receive job(id: %s): %d", jobID, time.Now().Unix())
+			if id == jobID {
 				v := atomic.LoadInt64(&num)
 				if v <= 4 {
 					atomic.AddInt64(&num, 1)
@@ -112,7 +112,7 @@ func TestDelayQueueTTR(t *testing.T) {
 // Testing ttr, consume but don't finish or delete.
 // Message should be consume again.
 func TestDelayQueueBlockPop(t *testing.T) {
-	defer CleanTestingStates()
+	t.Parallel()
 
 	topic, id := "TestDelayQueueBlockPop-topic", "111"
 	j, err := job.New(topic, id, job.JobDelayOption(0*time.Second))
@@ -129,9 +129,9 @@ func TestDelayQueueBlockPop(t *testing.T) {
 		ch := c.Consume()
 		startTime := time.Now()
 		for jobMsg := range ch {
-			jobId := jobMsg.GetId()
-			t.Logf("Receive job(id: %s): %d", jobId, time.Now().Unix())
-			if id == jobId {
+			jobID := jobMsg.GetId()
+			t.Logf("Receive job(id: %s): %d", jobID, time.Now().Unix())
+			if id == jobID {
 				totalTime += time.Since(startTime)
 			}
 		}

@@ -13,12 +13,13 @@ import (
 
 // TODO: add pipeline
 
+// Redis interface
 type Redis interface {
 	Del(ctx context.Context, key string) (bool, error)
 	Exists(ctx context.Context, key string) (bool, error)
 	Expire(ctx context.Context, key string, expiration time.Duration) (bool, error)
 	ExpireAt(ctx context.Context, key string, tm time.Time) (bool, error)
-	Ttl(ctx context.Context, key string) (time.Duration, error)
+	TTL(ctx context.Context, key string) (time.Duration, error)
 	FlushDB(ctx context.Context) error
 
 	// kv
@@ -103,6 +104,7 @@ type redis struct {
 	isCluster bool
 }
 
+// New create a redis
 func New(conf config.Redis) Redis {
 	// check if it is cluster
 	if conf.Mode.IsCluster() {

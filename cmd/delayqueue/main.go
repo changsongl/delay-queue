@@ -29,7 +29,7 @@ var (
 	env        = flag.String("env", "release", "delay queue env: debug, release")
 	version    = flag.Bool("version", false, "display build info")
 
-	// errors
+	// ErrorInvalidFileType configuration file type is invalid
 	ErrorInvalidFileType = errors.New("invalid config file type")
 )
 
@@ -53,9 +53,9 @@ func loadConfigFlags() (file string, fileType config.FileType, err error) {
 
 	switch t {
 	case "yaml":
-		return f, config.FileTypeYaml, nil
+		return f, config.FileTypeYAML, nil
 	case "json":
-		return f, config.FileTypeJson, nil
+		return f, config.FileTypeJSON, nil
 	default:
 		return "", "", ErrorInvalidFileType
 	}
@@ -65,7 +65,7 @@ func loadConfigFlags() (file string, fileType config.FileType, err error) {
 func loadEnv() (vars.Env, error) {
 	envType := vars.Env(*env)
 	if envType != vars.EnvDebug && envType != vars.EnvRelease {
-		return "", errors.New(fmt.Sprintf("invalid env (%s)", envType))
+		return "", fmt.Errorf("invalid env (%s)", envType)
 	}
 
 	return envType, nil
@@ -149,7 +149,7 @@ func run() int {
 	}()
 
 	// run http server to receive requests from user
-	dqApi := api.NewApi(l, disp)
+	dqAPI := api.NewAPI(l, disp)
 	l.Info("Init server",
 		log.String("env", string(dqEnv)))
 	s := server.New(
@@ -159,7 +159,7 @@ func run() int {
 		server.AfterStopEventOption(),
 	)
 	s.Init()
-	s.RegisterRouters(dqApi.RouterFunc())
+	s.RegisterRouters(dqAPI.RouterFunc())
 	err = s.Run(conf.DelayQueue.BindAddress)
 	if err != nil {
 		l.Error("s.Run failed", log.Error(err))

@@ -11,6 +11,7 @@ var (
 	GoVersion    string
 )
 
+// BuildInfo build info
 func BuildInfo() string {
 	return fmt.Sprintf(
 		"[Build Info] \nProgram   : %s \nVersion   : %s \nGo Version: %s \nBuild Time: %s \nGithub    : %s\n",

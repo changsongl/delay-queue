@@ -10,19 +10,24 @@ import (
 	"os"
 )
 
+// FileType configuration file type
 type FileType string
 
-// config file type
+// config file type enum
 const (
-	FileTypeYaml FileType = "yaml"
-	FileTypeJson FileType = "json"
+	// FileTypeYAML yaml type
+	FileTypeYAML FileType = "yaml"
+	// FileTypeJSON json type
+	FileTypeJSON FileType = "json"
 )
 
 // RedisMode redis set up
 type RedisMode string
 
 const (
-	RedisModeNormal  RedisMode = ""
+	// RedisModeNormal redis normal mode
+	RedisModeNormal RedisMode = ""
+	// RedisModeCluster redis cluster
 	RedisModeCluster RedisMode = "cluster"
 )
 
@@ -178,9 +183,9 @@ func (c *Conf) load(bts []byte, decodeFunc func([]byte, interface{}) error) erro
 
 // getDecoderByFileType get file type for decoding
 func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
-	if fileType == FileTypeJson {
+	if fileType == FileTypeJSON {
 		return json.NewDecoder(), nil
-	} else if fileType == FileTypeYaml {
+	} else if fileType == FileTypeYAML {
 		return yaml.NewDecoder(), nil
 	}
 

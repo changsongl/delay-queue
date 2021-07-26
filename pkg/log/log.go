@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// Logger logger interface
 type Logger interface {
 	WithModule(module string) Logger
 
@@ -15,10 +16,12 @@ type Logger interface {
 	Write(p []byte) (n int, err error)
 }
 
+// logger
 type logger struct {
 	z *zap.Logger
 }
 
+// New a logger
 func New(opts ...Option) (Logger, error) {
 	c := NewConfig()
 	opts = append(opts, CallSkipOption(1))

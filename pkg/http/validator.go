@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Validator validator interface with validate function
 type Validator interface {
 	Validate(c *gin.Context, uri, query, body interface{}) error
 }
@@ -28,10 +29,12 @@ func (p paramError) Error() string {
 type validator struct {
 }
 
+// NewValidator create a new validator
 func NewValidator() Validator {
 	return &validator{}
 }
 
+// Validate validate function
 func (v *validator) Validate(c *gin.Context, uri, query, body interface{}) error {
 	if uri != nil {
 		if err := c.ShouldBindUri(uri); err != nil {
