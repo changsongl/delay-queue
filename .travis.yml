@@ -7,6 +7,7 @@ go:
   - "1.16"
   - master
 script:
+  - make env
   - make build
   - make test-unit
 

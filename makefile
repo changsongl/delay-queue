@@ -14,7 +14,7 @@ REPO=github.com/changsongl/delay-queue/
 
 LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.GoVersion=${GO_VERSION} -X ${REPO}vars.BuildTime=${BUILD_TIME} -X ${REPO}vars.BuildVersion=${VERSION} -X ${REPO}vars.BuildGitPath=${GIT_ADDR}"
 
-.PHONY: build clean test test-unit test-integration run
+.PHONY: build clean test test-unit test-integration run env
 
 test-unit:
 	go test `go list ./... | grep -v integration`
@@ -27,7 +27,11 @@ test:
 
 build:
 	go fmt ./...
+	go mod download
 	go build -o ${BINARY} ${LDFLAGS} ${MAIN_FILE}
+
+env:
+	go env
 
 run:
 	./${BINARY} -config.file ./config/config.yaml
