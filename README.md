@@ -1,9 +1,11 @@
 # delay-queue
+
+[![Build Status](https://travis-ci.com/changsongl/delay-queue.svg?branch=main)](https://travis-ci.com/changsongl/delay-queue)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
+
 Translations:
 
 - [中文文档](./README_ZH.md)
-
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fchangsongl%2Fdelay-queue&count_bg=%232BBC8A&title_bg=%23555555&icon=artstation.svg&icon_color=%23C7C7C7&title=Visitor&edge_flat=false)](https://hits.seeyoufarm.com)
 
 ````
   ____       _                ___                        
