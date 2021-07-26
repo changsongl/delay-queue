@@ -26,8 +26,8 @@ test:
 	go test ./...
 
 build:
-	go fmt ./...
 	go mod download
+	go fmt ./...
 	go build -o ${BINARY} ${LDFLAGS} ${MAIN_FILE}
 
 env:
