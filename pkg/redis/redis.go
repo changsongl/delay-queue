@@ -105,8 +105,7 @@ type redis struct {
 
 func New(conf config.Redis) Redis {
 	// check if it is cluster
-	_, isCluster := isClusterInstance(conf.Address)
-	if isCluster {
+	if conf.Mode.IsCluster() {
 		return newClusterRedis(conf)
 	}
 
@@ -115,7 +114,7 @@ func New(conf config.Redis) Redis {
 
 // new cluster redis
 func newClusterRedis(conf config.Redis) Redis {
-	addresses, _ := isClusterInstance(conf.Address)
+	addresses := isClusterInstance(conf.Address)
 	cli := gredis.NewClusterClient(
 		&gredis.ClusterOptions{
 			Addrs:        addresses,
@@ -164,9 +163,9 @@ func newSingleRedis(conf config.Redis) Redis {
 }
 
 // isClusterInstance is to check if the add is cluster address. Ex: ip1:port1,ip2:port2
-func isClusterInstance(addr string) ([]string, bool) {
+func isClusterInstance(addr string) []string {
 	address := strings.Split(addr, ",")
-	return address, len(address) > 1
+	return address
 }
 
 // Close close client and all connections

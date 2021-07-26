@@ -17,6 +17,7 @@ import (
 // This is an integration test for delay queue.
 // It will test add job, consume and remove.
 func TestDelayQueueAddAndRemove(t *testing.T) {
+	defer CleanTestingStates()
 	// push n jobs with delay within 1 min
 	DelayTimeSeconds := 30
 	Jobs := 200
@@ -74,6 +75,8 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 // Testing ttr, consume but don't finish or delete.
 // Message should be consume again.
 func TestDelayQueueTTR(t *testing.T) {
+	defer CleanTestingStates()
+
 	topic, id := "TestDelayQueueTTR-topic", "000"
 	j, err := job.New(topic, id, job.JobDelayOption(10*time.Second), job.JobTTROption(5*time.Second))
 	require.NoError(t, err)
@@ -104,4 +107,43 @@ func TestDelayQueueTTR(t *testing.T) {
 
 	time.Sleep(35 * time.Second)
 	require.LessOrEqual(t, int64(4), num, "retry time should be equal")
+}
+
+// Testing ttr, consume but don't finish or delete.
+// Message should be consume again.
+func TestDelayQueueBlockPop(t *testing.T) {
+	defer CleanTestingStates()
+
+	topic, id := "TestDelayQueueBlockPop-topic", "111"
+	j, err := job.New(topic, id, job.JobDelayOption(0*time.Second))
+	require.NoError(t, err)
+
+	blockTime := 5 * time.Second
+
+	cli := client.NewClient(DelayQueueAddr)
+
+	var totalTime time.Duration = 0
+	go func() {
+		// consume jobs
+		c := consumer.New(cli, topic, consumer.WorkerNumOption(1))
+		ch := c.Consume()
+		startTime := time.Now()
+		for jobMsg := range ch {
+			jobId := jobMsg.GetId()
+			t.Logf("Receive job(id: %s): %d", jobId, time.Now().Unix())
+			if id == jobId {
+				totalTime += time.Since(startTime)
+			}
+		}
+	}()
+
+	time.Sleep(blockTime - 3*time.Second)
+	t.Logf("Add job: %d", time.Now().Unix())
+	err = cli.AddJob(j)
+	require.NoError(t, err)
+
+	time.Sleep(blockTime)
+	t.Log("total-time", totalTime)
+	require.Greater(t, totalTime, time.Duration(0))
+	require.LessOrEqual(t, totalTime, blockTime)
 }

@@ -14,8 +14,11 @@ delay_queue:
 
 # redis config
 redis:
+  mode:          ""                # redis set up. (EX: "", "cluster") default is empty.
+                                   # set "cluster", if you are using redis cluster.
   network:       "tcp"             # redis network: tcp, unix. This is only for Single redis, not cluster.
-  address:       "127.0.0.1:6379"  # host:port address. (EX: 127.0.0.1:6379), redis cluster(ip1:port1,ip2:port2,ip3:port3)
+  address:       "127.0.0.1:6379"  # host:port address for normal redis address. (EX: 127.0.0.1:6379).
+                                   # redis cluster mode(ip1:port1,ip2:port2,ip3:port3)
   dial_timeout:  5000              # dial timeout for establishing new connections.
                                    # default is 5 seconds. (ms)
   read_timeout:  2000              # timeout for socket reads. If reached, commands will failwith a timeout instead

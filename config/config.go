@@ -18,6 +18,14 @@ const (
 	FileTypeJson FileType = "json"
 )
 
+// RedisMode redis set up
+type RedisMode string
+
+const (
+	RedisModeNormal  RedisMode = ""
+	RedisModeCluster RedisMode = "cluster"
+)
+
 // default configurations
 const (
 	// delay queue configuration
@@ -69,6 +77,8 @@ type DelayQueue struct {
 
 // Redis redis configuration
 type Redis struct {
+	// Redis set up, "" for regular redis, "cluster" for redis cluster
+	Mode RedisMode `yaml:"mode,omitempty" json:"mode,omitempty"`
 	// The network type, either tcp or unix.
 	// Default is tcp.
 	Network string `yaml:"network,omitempty" json:"network,omitempty"`
@@ -181,4 +191,9 @@ func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
 func (c *Conf) String() string {
 	bytes, _ := encodeJson.Marshal(c)
 	return string(bytes)
+}
+
+// IsCluster return current redis mode is cluster
+func (r RedisMode) IsCluster() bool {
+	return r == RedisModeCluster
 }
