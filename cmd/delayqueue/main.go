@@ -134,8 +134,7 @@ func run() int {
 			}
 
 			p := pool.New(s, l)
-			q := queue.New(s, l, conf.DelayQueue.QueueName,
-				time.Duration(conf.DelayQueue.FetchJobBlockTime)*time.Second)
+			q := queue.New(s, l, conf.DelayQueue.QueueName)
 			t := timer.New(
 				l, time.Duration(conf.DelayQueue.TimerFetchInterval)*time.Millisecond,
 				time.Duration(conf.DelayQueue.TimerFetchDelay)*time.Millisecond,

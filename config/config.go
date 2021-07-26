@@ -75,9 +75,6 @@ type DelayQueue struct {
 	// fetch delay(ms), if there are still job in the bucket after the fetch
 	// it will delay timer_fetch_delay ms for next fetch. Default is not wait.
 	TimerFetchDelay int `yaml:"timer_fetch_delay,omitempty" json:"timer_fetch_delay,omitempty"`
-	// block how many second for fetching jobs from queue(unit: second).
-	// default: 5 seconds.
-	FetchJobBlockTime int `yaml:"fetch_job_block_time" json:"fetch_job_block_time"`
 }
 
 // Redis redis configuration
@@ -135,7 +132,6 @@ func New() *Conf {
 			QueueName:          DefaultDQQueueName,
 			BucketMaxFetchNum:  DefaultDQBucketMaxFetchNum,
 			TimerFetchInterval: DefaultTimerFetchInterval,
-			FetchJobBlockTime:  DefaultFetchJobBlockTime,
 		},
 		Redis: Redis{
 			Network:      DefaultRedisNetwork,

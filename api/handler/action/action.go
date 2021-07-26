@@ -32,6 +32,10 @@ type addParam struct {
 	Override bool     `json:"override"`
 }
 
+type blockQuery struct {
+	Timeout *uint `form:"timeout" json:"timeout"`
+}
+
 // router container all api actions
 type router struct {
 	rsp       http.Response
@@ -128,13 +132,19 @@ func (r *router) finish(ctx *gin.Context) {
 // then id and topic are empty
 func (r *router) pop(ctx *gin.Context) {
 	uriParam := &topicParam{}
-	err := r.validator.Validate(ctx, uriParam, nil, nil)
+	queryParam := &blockQuery{}
+	err := r.validator.Validate(ctx, uriParam, queryParam, nil)
 	if err != nil {
 		r.rsp.Error(ctx, err)
 		return
 	}
 
-	j, err := r.dispatch.Pop(uriParam.Topic)
+	var blockTime time.Duration
+	if queryParam.Timeout != nil {
+		blockTime = time.Duration(*queryParam.Timeout) * time.Second
+	}
+
+	j, err := r.dispatch.Pop(uriParam.Topic, blockTime)
 	if err != nil {
 		r.rsp.Error(ctx, err)
 		return

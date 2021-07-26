@@ -17,15 +17,16 @@ LDFLAGS=-ldflags "-X ${REPO}vars.BuildProgram=${PROGRAM} -X ${REPO}vars.GoVersio
 .PHONY: build clean test test-unit test-integration run env
 
 test-unit:
-	go test `go list ./... | grep -v integration`
+	go test --count=1 `go list ./... | grep -v integration`
 
 test-integration:
-	go test ./test/integration/...
+	go test --count=1 ./test/integration/...
 
 test:
-	go test ./...
+	go test --count=1 ./...
 
 build:
+	golint ./...
 	go mod download
 	go fmt ./...
 	go build -o ${BINARY} ${LDFLAGS} ${MAIN_FILE}

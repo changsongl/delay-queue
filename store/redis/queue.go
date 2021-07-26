@@ -16,7 +16,18 @@ func (s *storage) PushJobToQueue(queuePrefix, queueName string, j *job.Job) erro
 }
 
 // PopJobFromQueue pop the job from redis queue
-func (s *storage) PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
+func (s *storage) PopJobFromQueue(queue string) (job.NameVersion, error) {
+	nv, err := s.rds.RPop(context.Background(), queue)
+	if redis.IsError(err) {
+		return "", err
+	} else if redis.IsNil(err) {
+		return "", nil
+	}
+	return job.NameVersion(nv), nil
+}
+
+// BPopJobFromQueue pop the job from redis queue with block time
+func (s *storage) BPopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
 	queueElement, err := s.rds.BRPop(context.Background(), queue, blockTime)
 	if redis.IsError(err) {
 		return "", err

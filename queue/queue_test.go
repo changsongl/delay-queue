@@ -30,7 +30,7 @@ func TestQueuePush(t *testing.T) {
 
 	sm.EXPECT().PushJobToQueue(queueName, que, j).Return(nil)
 	sm.EXPECT().CollectInFlightJobNumberQueue(queueName).AnyTimes()
-	q := New(sm, mLog, queueName, time.Duration(0))
+	q := New(sm, mLog, queueName)
 
 	err = q.Push(j)
 	require.NoError(t, err)
@@ -46,11 +46,10 @@ func TestQueuePop(t *testing.T) {
 	expectNV := job.NameVersion("haha")
 	sm := storemock.NewMockStore(ctrl)
 	mLog := logmock.NewMockLogger(ctrl)
-	blockTime := time.Duration(0)
 
-	sm.EXPECT().PopJobFromQueue(que, blockTime).Return(expectNV, nil)
+	sm.EXPECT().PopJobFromQueue(que).Return(expectNV, nil)
 	sm.EXPECT().CollectInFlightJobNumberQueue(queueName).AnyTimes()
-	q := New(sm, mLog, queueName, blockTime)
+	q := New(sm, mLog, queueName)
 
 	nv, err := q.Pop(jobTopic)
 	require.NoError(t, err)
@@ -69,17 +68,17 @@ func TestQueuePopWithBlockTime(t *testing.T) {
 	mLog := logmock.NewMockLogger(ctrl)
 	blockTime := 2 * time.Second
 
-	sm.EXPECT().PopJobFromQueue(que, blockTime).DoAndReturn(
+	sm.EXPECT().BPopJobFromQueue(que, blockTime).DoAndReturn(
 		func(queue string, blockTime time.Duration) (job.NameVersion, error) {
 			time.Sleep(blockTime)
 			return expectNV, nil
 		},
 	)
 	sm.EXPECT().CollectInFlightJobNumberQueue(queueName).AnyTimes()
-	q := New(sm, mLog, queueName, blockTime)
+	q := New(sm, mLog, queueName)
 
 	startTime := time.Now()
-	nv, err := q.Pop(jobTopic)
+	nv, err := q.PopWithBlockTime(jobTopic, blockTime)
 	dur := time.Since(startTime)
 
 	require.NoError(t, err)

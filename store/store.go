@@ -22,6 +22,7 @@ type Store interface {
 	CollectInFlightJobNumberBucket(bucket string) (uint64, error)
 
 	PushJobToQueue(queuePrefix, queueName string, j *job.Job) error
-	PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error)
+	PopJobFromQueue(queue string) (job.NameVersion, error)
+	BPopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error)
 	CollectInFlightJobNumberQueue(queuePrefix string) (map[string]uint64, error)
 }

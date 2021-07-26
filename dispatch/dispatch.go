@@ -17,7 +17,7 @@ import (
 // Dispatch interface for main stream of the program
 type Dispatch interface {
 	Add(topic job.Topic, id job.ID, delay job.Delay, ttr job.TTR, body job.Body, override bool) (err error)
-	Pop(topic job.Topic) (j *job.Job, err error)
+	Pop(topic job.Topic, blockTime time.Duration) (j *job.Job, err error)
 	Finish(topic job.Topic, id job.ID) (err error)
 	Delete(topic job.Topic, id job.ID) (err error)
 
@@ -134,10 +134,16 @@ func (d *dispatch) Add(topic job.Topic, id job.ID,
 // is not zero, it will requeue after ttr time. if user doesn't call finish before
 // that time, then this job can be pop again. User need to make sure ttr time is
 // reasonable.
-func (d *dispatch) Pop(topic job.Topic) (j *job.Job, err error) {
+func (d *dispatch) Pop(topic job.Topic, blockTime time.Duration) (j *job.Job, err error) {
+	var nameVersion job.NameVersion
 
-	// find job from ready queue
-	nameVersion, err := d.queue.Pop(topic)
+	if blockTime == 0 {
+		// find job from ready queue
+		nameVersion, err = d.queue.Pop(topic)
+	} else {
+		nameVersion, err = d.queue.PopWithBlockTime(topic, blockTime)
+	}
+
 	if err != nil {
 		return
 	} else if nameVersion == "" {

@@ -19,6 +19,7 @@ var (
 type Queue interface {
 	Push(*job.Job) error
 	Pop(topic job.Topic) (job.NameVersion, error)
+	PopWithBlockTime(topic job.Topic, blockTime time.Duration) (job.NameVersion, error)
 }
 
 // queue is Queue implementation struct.
@@ -27,16 +28,14 @@ type queue struct {
 	prefix           string               // prefix
 	onFlightJobGauge *prometheus.GaugeVec // on flight jobs number in bucket
 	l                log.Logger           // logger
-	blockTime        time.Duration        // queue block time
 }
 
 // New a queue with a prefix, and storage for queue.
-func New(s store.Store, l log.Logger, name string, blockTime time.Duration) Queue {
+func New(s store.Store, l log.Logger, name string) Queue {
 	q := &queue{
-		s:         s,
-		prefix:    name,
-		l:         l,
-		blockTime: blockTime,
+		s:      s,
+		prefix: name,
+		l:      l,
 	}
 	q.CollectMetrics()
 	return q
@@ -49,10 +48,16 @@ func (r *queue) Push(j *job.Job) error {
 	return r.s.PushJobToQueue(prefix, que, j)
 }
 
-// Pop a job from queue by job's topic
+// Pop a job from queue by job's topic with default block time
 func (r *queue) Pop(topic job.Topic) (job.NameVersion, error) {
 	que := r.getQueueName(topic)
-	return r.s.PopJobFromQueue(que, r.blockTime)
+	return r.s.PopJobFromQueue(que)
+}
+
+// PopWithBlockTime Pop a job from queue by job's topic with a block time
+func (r *queue) PopWithBlockTime(topic job.Topic, blockTime time.Duration) (job.NameVersion, error) {
+	que := r.getQueueName(topic)
+	return r.s.BPopJobFromQueue(que, blockTime)
 }
 
 // getQueueName based on topic of job and the queue prefix.

@@ -36,6 +36,21 @@ func (m *MockStore) EXPECT() *MockStoreMockRecorder {
 	return m.recorder
 }
 
+// BPopJobFromQueue mocks base method.
+func (m *MockStore) BPopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BPopJobFromQueue", queue, blockTime)
+	ret0, _ := ret[0].(job.NameVersion)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// BPopJobFromQueue indicates an expected call of BPopJobFromQueue.
+func (mr *MockStoreMockRecorder) BPopJobFromQueue(queue, blockTime interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BPopJobFromQueue", reflect.TypeOf((*MockStore)(nil).BPopJobFromQueue), queue, blockTime)
+}
+
 // CollectInFlightJobNumberBucket mocks base method.
 func (m *MockStore) CollectInFlightJobNumberBucket(bucket string) (uint64, error) {
 	m.ctrl.T.Helper()
@@ -153,18 +168,18 @@ func (mr *MockStoreMockRecorder) LoadJob(j interface{}) *gomock.Call {
 }
 
 // PopJobFromQueue mocks base method.
-func (m *MockStore) PopJobFromQueue(queue string, blockTime time.Duration) (job.NameVersion, error) {
+func (m *MockStore) PopJobFromQueue(queue string) (job.NameVersion, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PopJobFromQueue", queue, blockTime)
+	ret := m.ctrl.Call(m, "PopJobFromQueue", queue)
 	ret0, _ := ret[0].(job.NameVersion)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // PopJobFromQueue indicates an expected call of PopJobFromQueue.
-func (mr *MockStoreMockRecorder) PopJobFromQueue(queue, blockTime interface{}) *gomock.Call {
+func (mr *MockStoreMockRecorder) PopJobFromQueue(queue interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PopJobFromQueue", reflect.TypeOf((*MockStore)(nil).PopJobFromQueue), queue, blockTime)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PopJobFromQueue", reflect.TypeOf((*MockStore)(nil).PopJobFromQueue), queue)
 }
 
 // PushJobToQueue mocks base method.
