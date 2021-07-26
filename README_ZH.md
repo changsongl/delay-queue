@@ -67,8 +67,8 @@ body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 ````
 
 ````http request
-// Pop job
-GET 127.0.0.1:8000/topic/mytopic/job
+// Pop job (timeout: 秒)
+GET 127.0.0.1:8000/topic/mytopic/job?timeout=5
 
 // response
 {
