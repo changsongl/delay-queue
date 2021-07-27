@@ -31,7 +31,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 	for i := 0; i < Jobs; i++ {
 		delayTime := rand.Intn(DelayTimeSeconds)
 		id := fmt.Sprintf("test-%d", i)
-		j, err := job.New(topic, id, job.JobDelayOption(time.Duration(delayTime)*time.Second))
+		j, err := job.New(topic, id, job.DelayOption(time.Duration(delayTime)*time.Second))
 		require.NoError(t, err)
 
 		err = AddJobRecord(key, id)
@@ -49,7 +49,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 		c := consumer.New(cli, topic, consumer.WorkerNumOption(1))
 		ch := c.Consume()
 		for jobMsg := range ch {
-			id := jobMsg.GetId()
+			id := jobMsg.GetID()
 			err := DeleteJobRecord(key, id)
 			require.NoError(t, err)
 
@@ -78,7 +78,7 @@ func TestDelayQueueTTR(t *testing.T) {
 	t.Parallel()
 
 	topic, id := "TestDelayQueueTTR-topic", "000"
-	j, err := job.New(topic, id, job.JobDelayOption(10*time.Second), job.JobTTROption(5*time.Second))
+	j, err := job.New(topic, id, job.DelayOption(10*time.Second), job.TTROption(5*time.Second))
 	require.NoError(t, err)
 
 	cli := client.NewClient(DelayQueueAddr)
@@ -94,7 +94,7 @@ func TestDelayQueueTTR(t *testing.T) {
 		c := consumer.New(cli, topic, consumer.WorkerNumOption(2))
 		ch := c.Consume()
 		for jobMsg := range ch {
-			jobID := jobMsg.GetId()
+			jobID := jobMsg.GetID()
 			t.Logf("Receive job(id: %s): %d", jobID, time.Now().Unix())
 			if id == jobID {
 				v := atomic.LoadInt64(&num)
@@ -109,42 +109,41 @@ func TestDelayQueueTTR(t *testing.T) {
 	require.LessOrEqual(t, int64(4), num, "retry time should be equal")
 }
 
-// TODO: test block
-// Testing ttr, consume but don't finish or delete.
-// Message should be consume again.
-//func TestDelayQueueBlockPop(t *testing.T) {
-//	t.Parallel()
-//
-//	topic, id := "TestDelayQueueBlockPop-topic", "111"
-//	j, err := job.New(topic, id, job.JobDelayOption(0*time.Second))
-//	require.NoError(t, err)
-//
-//	blockTime := 5 * time.Second
-//
-//	cli := client.NewClient(DelayQueueAddr)
-//
-//	var totalTime time.Duration = 0
-//	go func() {
-//		// consume jobs
-//		c := consumer.New(cli, topic, consumer.WorkerNumOption(1))
-//		ch := c.Consume()
-//		startTime := time.Now()
-//		for jobMsg := range ch {
-//			jobID := jobMsg.GetId()
-//			t.Logf("Receive job(id: %s): %d", jobID, time.Now().Unix())
-//			if id == jobID {
-//				totalTime += time.Since(startTime)
-//			}
-//		}
-//	}()
-//
-//	time.Sleep(blockTime - 3*time.Second)
-//	t.Logf("Add job: %d", time.Now().Unix())
-//	err = cli.AddJob(j)
-//	require.NoError(t, err)
-//
-//	time.Sleep(blockTime)
-//	t.Log("total-time", totalTime)
-//	require.Greater(t, totalTime, time.Duration(0))
-//	require.LessOrEqual(t, totalTime, blockTime)
-//}
+//Testing ttr, consume but don't finish or delete.
+//Message should be consume again.
+func TestDelayQueueBlockPop(t *testing.T) {
+	t.Parallel()
+
+	topic, id := "TestDelayQueueBlockPop-topic", "111"
+	j, err := job.New(topic, id, job.DelayOption(0*time.Second))
+	require.NoError(t, err)
+
+	blockTime := 5 * time.Second
+
+	cli := client.NewClient(DelayQueueAddr)
+
+	var totalTime time.Duration = 0
+	go func() {
+		// consume jobs
+		c := consumer.New(cli, topic, consumer.WorkerNumOption(1), consumer.PopTimeoutOption(blockTime))
+		ch := c.Consume()
+		startTime := time.Now()
+		for jobMsg := range ch {
+			jobID := jobMsg.GetID()
+			t.Logf("Receive job(id: %s): %d", jobID, time.Now().Unix())
+			if id == jobID {
+				totalTime += time.Since(startTime)
+			}
+		}
+	}()
+
+	time.Sleep(blockTime - 3*time.Second)
+	t.Logf("Add job: %d", time.Now().Unix())
+	err = cli.AddJob(j)
+	require.NoError(t, err)
+
+	time.Sleep(blockTime)
+	t.Log("total-time", totalTime)
+	require.Greater(t, totalTime, time.Duration(0))
+	require.LessOrEqual(t, totalTime, blockTime)
+}
