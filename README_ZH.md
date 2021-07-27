@@ -42,7 +42,7 @@ bin/delayqueue -help
   -config.file string
         config file (default "../../config/config.yaml")
   -config.type string
-        config type
+        config type: yaml, json
   -env string
         delay queue env: debug, release (default "release")
   -version

@@ -25,7 +25,7 @@ import (
 var (
 	// configuration and environment
 	configFile = flag.String("config.file", "../../config/config.yaml", "config file")
-	configType = flag.String("config.type", "", "config type")
+	configType = flag.String("config.type", "", "config type: yaml, json")
 	env        = flag.String("env", "release", "delay queue env: debug, release")
 	version    = flag.Bool("version", false, "display build info")
 
