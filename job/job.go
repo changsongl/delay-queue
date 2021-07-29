@@ -104,3 +104,8 @@ func (j *Job) Lock() error {
 func (j *Job) Unlock() (bool, error) {
 	return j.Mutex.Unlock()
 }
+
+// SetVersion set job version by nano ts
+func (j *Job) SetVersion(ts int64) {
+	j.Version.t = time.Unix(ts/1e9, ts%1e9)
+}

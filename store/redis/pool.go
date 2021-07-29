@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/redis"
@@ -17,7 +16,7 @@ func (s *storage) LoadJob(j *job.Job) error {
 		return errors.New("job is not exists")
 	}
 
-	return json.Unmarshal([]byte(jobData), j)
+	return s.encoder.Decode([]byte(jobData), j)
 }
 
 // CreateJob information, only if the job is not exists.

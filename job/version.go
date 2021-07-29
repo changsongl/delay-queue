@@ -20,6 +20,11 @@ func (v Version) String() string {
 	return strconv.FormatInt(v.t.UnixNano(), 10)
 }
 
+// UInt64 function
+func (v Version) UInt64() uint64 {
+	return uint64(v.t.UnixNano())
+}
+
 // LoadVersion load version from a string
 func LoadVersion(vs string) (Version, error) {
 	version := Version{}
