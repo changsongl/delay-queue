@@ -9,7 +9,6 @@ delay_queue:
   timer_fetch_interval: 1000                 # fetching job interval(ms), decrease interval may get better throughout.
   timer_fetch_delay:    0                    # fetch delay(ms), if there are still job in the bucket after the fetch,
                                              # it will delay timer_fetch_delay ms for next fetch. Default is not wait.
-  #encoder:              "json"               # encoder: json, compress(default, similar to protobuf)
 
 # redis config
 redis:
