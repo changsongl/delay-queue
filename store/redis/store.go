@@ -20,6 +20,6 @@ func (s storage) GetLock(name string) lock.Locker {
 }
 
 // NewStore return a redis storage
-func NewStore(r redis.Redis) store.Store {
-	return &storage{rds: r, encoder: encode.NewJSON()}
+func NewStore(r redis.Redis, e encode.Encoder) store.Store {
+	return &storage{rds: r, encoder: e}
 }

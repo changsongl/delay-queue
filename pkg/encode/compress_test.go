@@ -1,7 +1,6 @@
 package encode
 
 import (
-	"fmt"
 	"github.com/changsongl/delay-queue/job"
 	"github.com/changsongl/delay-queue/pkg/lock"
 	"github.com/stretchr/testify/require"
@@ -10,18 +9,17 @@ import (
 
 func TestCompressEncoder(t *testing.T) {
 	encoder := NewCompress()
-	j, err := job.New("jobTopic11", "1222", 10, 5, "", func(name string) lock.Locker {
+	j, err := job.New("jobTopic11", "哈哈大萨达撒多", 10213213211, 521321312312, "萨达大所多敖德萨多", func(name string) lock.Locker {
 		return nil
 	})
 	require.NoError(t, err)
 
 	str, err := encoder.Encode(j)
 	require.NoError(t, err)
-	fmt.Println(str)
 
+	t.Log(string(str))
 	jDecode := &job.Job{}
 	err = encoder.Decode(str, jDecode)
-	fmt.Printf("%+v", jDecode)
 
 	require.NoError(t, err)
 	require.Equal(t, j.ID, jDecode.ID)

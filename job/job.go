@@ -10,12 +10,12 @@ import (
 
 // Job job for delay queue
 type Job struct {
-	Topic   Topic       `json:"topic"`
-	ID      ID          `json:"id"`
-	Delay   Delay       `json:"delay"`
-	TTR     TTR         `json:"ttr"`
-	Body    Body        `json:"body"`
-	Version Version     `json:"version"`
+	Topic   Topic       `json:"topic,omitempty"`
+	ID      ID          `json:"id,omitempty"`
+	Delay   Delay       `json:"delay,omitempty"`
+	TTR     TTR         `json:"ttr,omitempty"`
+	Body    Body        `json:"body,omitempty"`
+	Version Version     `json:"version,omitempty"`
 	Mutex   lock.Locker `json:"-"`
 }
 

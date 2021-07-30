@@ -6,6 +6,8 @@ import (
 	"github.com/changsongl/delay-queue/job"
 )
 
+// |tag|[length]|data
+
 // tag s
 const (
 	TagID uint64 = iota
@@ -32,7 +34,7 @@ func NewCompress() Encoder {
 	return &compress{}
 }
 
-// Encode compress encode
+// Encode compress encode, not using reflect
 func (c *compress) Encode(j *job.Job) ([]byte, error) {
 	buf := make([]byte, c.bufLength(j))
 	written := 0
@@ -42,8 +44,6 @@ func (c *compress) Encode(j *job.Job) ([]byte, error) {
 	if !j.TTR.IsEmpty() {
 		written += c.PutUInt64(TagTTR, uint64(j.TTR), buf[written:])
 	}
-	written += c.PutUInt64(TagVersion, j.Version.UInt64(), buf[written:])
-
 	if !j.ID.IsEmpty() {
 		written += c.PutString(TagID, string(j.ID), buf[written:])
 	}
@@ -53,6 +53,7 @@ func (c *compress) Encode(j *job.Job) ([]byte, error) {
 	if !j.Topic.IsEmpty() {
 		written += c.PutString(TagTopic, string(j.Topic), buf[written:])
 	}
+	written += c.PutUInt64(TagVersion, j.Version.UInt64(), buf[written:])
 
 	return buf[:written], nil
 }
@@ -100,7 +101,7 @@ func (c *compress) Decode(b []byte, j *job.Job) error {
 func (c *compress) bufLength(j *job.Job) int {
 	l := (TagLength+MaxUInt64Length)*5 + len(j.ID) + len(j.Topic)
 	if j.Body != "" {
-		l += TagLength + MaxUInt64Length + len(j.Topic)
+		l += TagLength + MaxUInt64Length + len(j.Body)
 	}
 	return l
 }

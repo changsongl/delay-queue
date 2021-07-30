@@ -11,6 +11,7 @@ require (
 	github.com/go-redsync/redsync/v4 v4.0.4
 	github.com/golang/mock v1.5.0
 	github.com/gomodule/redigo v2.0.0+incompatible // indirect
+	github.com/json-iterator/go v1.1.11
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/prometheus/client_golang v1.9.0
 	github.com/stretchr/testify v1.7.0
