@@ -126,6 +126,7 @@ func run() int {
 	disp := dispatch.NewDispatch(l,
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
+
 			s := redis.NewStore(cli)
 
 			b := bucket.New(s, l, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)

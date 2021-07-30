@@ -10,7 +10,7 @@ import (
 // BenchmarkCompressEncode    	1000000000	         0.000011 ns/op   len(32)
 func BenchmarkCompressEncode(t *testing.B) {
 	encoder := NewCompress()
-	j, err := job.New("jobTopic", "131223", 1, 1, "", func(name string) lock.Locker {
+	j, err := job.New("jobTopic", "131223", 1, 1, job.Body(longText), func(name string) lock.Locker {
 		return nil
 	})
 	require.NoError(t, err)
@@ -23,7 +23,7 @@ func BenchmarkCompressEncode(t *testing.B) {
 // BenchmarkJSONEncode    	1000000000	         0.000024 ns/op    len(92)
 func BenchmarkJSONEncode(t *testing.B) {
 	encoder := NewJSON()
-	j, err := job.New("jobTopic", "131223", 1, 1, "", func(name string) lock.Locker {
+	j, err := job.New("jobTopic", "131223", 1, 1, job.Body(longText), func(name string) lock.Locker {
 		return nil
 	})
 	require.NoError(t, err)

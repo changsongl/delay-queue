@@ -160,8 +160,7 @@ func (c *Conf) Load(file string, fileType FileType) error {
 		return err
 	}
 
-	err = c.load(bts, decoder.DecodeFunc())
-	if err != nil {
+	if err = c.load(bts, decoder.DecodeFunc()); err != nil {
 		return err
 	}
 

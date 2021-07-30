@@ -31,7 +31,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 	for i := 0; i < Jobs; i++ {
 		delayTime := rand.Intn(DelayTimeSeconds)
 		id := fmt.Sprintf("test-%d", i)
-		j, err := job.New(topic, id, job.DelayOption(time.Duration(delayTime)*time.Second))
+		j, err := job.New(topic, id, job.DelayOption(time.Duration(delayTime)*time.Second), job.BodyOption("a body"))
 		require.NoError(t, err)
 
 		err = AddJobRecord(key, id)
@@ -50,6 +50,7 @@ func TestDelayQueueAddAndRemove(t *testing.T) {
 		ch := c.Consume()
 		for jobMsg := range ch {
 			id := jobMsg.GetID()
+			//t.Logf("%+v", jobMsg)
 			err := DeleteJobRecord(key, id)
 			require.NoError(t, err)
 
