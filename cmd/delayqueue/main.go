@@ -8,7 +8,6 @@ import (
 	"github.com/changsongl/delay-queue/bucket"
 	"github.com/changsongl/delay-queue/config"
 	"github.com/changsongl/delay-queue/dispatch"
-	"github.com/changsongl/delay-queue/pkg/encode"
 	"github.com/changsongl/delay-queue/pkg/log"
 	client "github.com/changsongl/delay-queue/pkg/redis"
 	"github.com/changsongl/delay-queue/pool"
@@ -127,14 +126,8 @@ func run() int {
 	disp := dispatch.NewDispatch(l,
 		func() (bucket.Bucket, pool.Pool, queue.Queue, timer.Timer) {
 			cli := client.New(conf.Redis)
-			var e encode.Encoder
-			if conf.DelayQueue.Encoder == config.EncoderCompress {
-				e = encode.NewCompress()
-			} else {
-				e = encode.NewJSON()
-			}
 
-			s := redis.NewStore(cli, e)
+			s := redis.NewStore(cli)
 
 			b := bucket.New(s, l, conf.DelayQueue.BucketSize, conf.DelayQueue.BucketName)
 			if maxFetchNum := conf.DelayQueue.BucketMaxFetchNum; maxFetchNum != 0 {

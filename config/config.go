@@ -3,7 +3,6 @@ package config
 import (
 	encodeJson "encoding/json"
 	"errors"
-	"fmt"
 	"github.com/changsongl/delay-queue/config/decode"
 	"github.com/changsongl/delay-queue/config/decode/json"
 	"github.com/changsongl/delay-queue/config/decode/yaml"
@@ -30,13 +29,6 @@ const (
 	RedisModeNormal RedisMode = ""
 	// RedisModeCluster redis cluster
 	RedisModeCluster RedisMode = "cluster"
-)
-
-const (
-	// EncoderJSON json
-	EncoderJSON = "json"
-	// EncoderCompress compress like protobbuf
-	EncoderCompress = "compress"
 )
 
 // default configurations
@@ -83,8 +75,6 @@ type DelayQueue struct {
 	// fetch delay(ms), if there are still job in the bucket after the fetch
 	// it will delay timer_fetch_delay ms for next fetch. Default is not wait.
 	TimerFetchDelay int `yaml:"timer_fetch_delay,omitempty" json:"timer_fetch_delay,omitempty"`
-	// encoder: json, compress(fast diy encode, similar to protobuf)
-	Encoder string `yaml:"encoder,omitempty" json:"encoder,omitempty"`
 }
 
 // Redis redis configuration
@@ -142,7 +132,6 @@ func New() *Conf {
 			QueueName:          DefaultDQQueueName,
 			BucketMaxFetchNum:  DefaultDQBucketMaxFetchNum,
 			TimerFetchInterval: DefaultTimerFetchInterval,
-			Encoder:            EncoderCompress,
 		},
 		Redis: Redis{
 			Network:      DefaultRedisNetwork,
@@ -175,10 +164,6 @@ func (c *Conf) Load(file string, fileType FileType) error {
 		return err
 	}
 
-	if err = c.IsValid(); err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -200,14 +185,6 @@ func (c *Conf) getDecoderByFileType(fileType FileType) (decode.Decoder, error) {
 	}
 
 	return nil, errors.New("invalid file type")
-}
-
-// IsValid check conf is valid
-func (c *Conf) IsValid() error {
-	if c.DelayQueue.Encoder != EncoderJSON && c.DelayQueue.Encoder != EncoderCompress {
-		return fmt.Errorf("invalid encoder %s (%s, %s)", c.DelayQueue.Encoder, EncoderJSON, EncoderCompress)
-	}
-	return nil
 }
 
 // String config string
