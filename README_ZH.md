@@ -172,7 +172,10 @@ delay_queue_in_flight_jobs_numbers_in_queue{queue="dq_queue_mytopic"} 1
 3. Fork项目进行开发，并以develop分支，创建自己的分支进行开发。如fix-xxx, feature-xxx等等。
 4. 开发完成后，发起PR合入develop。
 5. Code Review后将会把你的代码合进分支。
- 
+
+### Stargazers
+[![Stargazers over time](https://starchart.cc/changsongl/delay-queue.svg)](https://starchart.cc/changsongl/delay-queue) 
+
 ### Reference
 
 Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)

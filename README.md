@@ -192,7 +192,10 @@ I will work on this project all the time! I will add more features and
 3. Fork the project, and checkout your branch from "develop" branch.
 4. Submit the PR to "develop" branch.
 5. It will be merged after code review.
- 
+
+### Stargazers
+[![Stargazers over time](https://starchart.cc/changsongl/delay-queue.svg)](https://starchart.cc/changsongl/delay-queue)
+
 ### Reference
 
 Youzan Design Concept [Youzan Link](https://tech.youzan.com/queuing_delay/)
