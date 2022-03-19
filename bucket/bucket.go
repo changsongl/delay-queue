@@ -47,7 +47,7 @@ type bucket struct {
 
 // New a Bucket interface object
 func New(s store.Store, l log.Logger, size uint64, name string) Bucket {
-	var c uint64 = 0
+	var c uint64
 	b := &bucket{
 		s:           s,
 		size:        size,
@@ -58,7 +58,7 @@ func New(s store.Store, l log.Logger, size uint64, name string) Bucket {
 	}
 	b.locks = make([]lock.Locker, 0, size)
 
-	var i uint64 = 0
+	var i uint64
 	for i < size {
 		b.locks = append(b.locks, s.GetLock(b.getBucketNameByID(i)))
 		i++
@@ -91,7 +91,7 @@ func (b *bucket) getBucketNameByID(id uint64) string {
 // GetBuckets return all bucket ids
 func (b *bucket) GetBuckets() []uint64 {
 	buckets := make([]uint64, 0, b.size)
-	var i uint64 = 0
+	var i uint64
 	for i < b.size {
 		buckets = append(buckets, i)
 		i++

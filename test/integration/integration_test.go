@@ -88,7 +88,7 @@ func TestDelayQueueTTR(t *testing.T) {
 
 	t.Logf("Add job: %d", time.Now().Unix())
 
-	var num int64 = 0
+	var num int64
 
 	go func() {
 		// consume jobs
@@ -123,7 +123,7 @@ func TestDelayQueueBlockPop(t *testing.T) {
 
 	cli := client.NewClient(DelayQueueAddr)
 
-	var totalTime time.Duration = 0
+	var totalTime time.Duration
 	go func() {
 		// consume jobs
 		c := consumer.New(cli, topic, consumer.WorkerNumOption(1), consumer.PopTimeoutOption(blockTime))
