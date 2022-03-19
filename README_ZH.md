@@ -54,7 +54,7 @@ bin/delayqueue -help
 
 - ##### Http
 
-````http request
+````
 // Push job
 POST 127.0.0.1:8000/topic/mytopic/job
 body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
@@ -66,7 +66,7 @@ body: {"id": "myid1","delay":10, "ttr":4, "body":"body"}
 }
 ````
 
-````http request
+````
 // Pop job (timeout: 秒)
 GET 127.0.0.1:8000/topic/mytopic/job?timeout=5
 
@@ -84,7 +84,7 @@ GET 127.0.0.1:8000/topic/mytopic/job?timeout=5
 }
 ````
 
-````http request
+````
 // Delete job
 DELETE 127.0.0.1:8000/topic/mytopic/job/myid1
 
@@ -95,7 +95,7 @@ DELETE 127.0.0.1:8000/topic/mytopic/job/myid1
 }
 ````
 
-````http request
+````
 // Delete job
 PUT 127.0.0.1:8000/topic/mytopic/job/myid1
 
