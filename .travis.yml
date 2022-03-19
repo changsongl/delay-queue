@@ -5,7 +5,6 @@ arch:
 go:
   - "1.15"
   - "1.16"
-  - master
 before_install:
   - go get -u golang.org/x/lint/golint
 script:
